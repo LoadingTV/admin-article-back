@@ -6,8 +6,9 @@ import * as path from 'path';
 export class ArticleService {
   private readonly directoryPath = path.join(__dirname, '..', 'articles');
 
-  async createFile() {
-    const fileName = `article_${Date.now()}.txt`;
+  async createFile(suffix: string = '') {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fileName = `article_${timestamp}_${suffix}.txt`;
     const filePath = path.join(this.directoryPath, fileName);
 
     fs.writeFileSync(filePath, '');
