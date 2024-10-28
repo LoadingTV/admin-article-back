@@ -9,12 +9,16 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { ArticleResponse } from './article.interface';
 import { generateSlug } from '../common/utils/string-utils';
 import { ConfigService } from '@nestjs/config';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class ArticleService {
   private readonly logger = new Logger(ArticleService.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly redisService: RedisService,
+  ) {}
 
   async createArticle(
     articleData: CreateArticleDto,
@@ -25,6 +29,9 @@ export class ArticleService {
 
     try {
       await this.saveArticle(fileName, htmlContent);
+
+      // Сохранение в кэше
+      await this.cacheArticle(fileName, htmlContent);
 
       this.logger.log({
         event: 'article_saved',
@@ -123,6 +130,24 @@ export class ArticleService {
         fileName,
       });
       throw error;
+    }
+  }
+
+  private async cacheArticle(fileName: string, content: string): Promise<void> {
+    try {
+      await this.redisService.set(`article:${fileName}`, content, 86400);
+
+      this.logger.log({
+        event: 'article_cached',
+        fileName,
+      });
+    } catch (error) {
+      this.logger.error({
+        event: 'article_cache_failed',
+        error: error.message,
+        fileName,
+      });
+      throw new InternalServerErrorException('Failed to cache article');
     }
   }
 }
