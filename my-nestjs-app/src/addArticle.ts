@@ -60,6 +60,7 @@ async function createArticle() {
   }
 }
 
-createArticle();
 createUser('Арина', 'arina@example.com', 'your_password');
+createArticle();
+
   
