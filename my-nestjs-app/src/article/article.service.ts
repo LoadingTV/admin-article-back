@@ -9,7 +9,7 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { ArticleResponse } from './article.interface';
 import { generateSlug } from '../common/utils/string-utils';
 import { ConfigService } from '@nestjs/config';
-import { RedisService } from '../redis/redis.service';
+
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
@@ -149,31 +149,38 @@ export class ArticleService {
   }
 
   //нет никаких проверок, предполагаю, что єто нужно засунуть в saveArticle, но пока так
-  async saveArticleNew(title: string, keyPoints: string, slug: string, content: string, metaDescription: string, authorId: number, ) {
-      return this.prisma.article.create({
-        data: {
-          title,
-          keyPoints,
-          slug,
-          content,
-          meta_description: metaDescription,
-          created_at: new Date(),
-          updated_at: new Date(), //тут нужно подумать как єто правильно сделать
-          author: {
-            connect: { user_id: authorId },
-          },
-          images: { //если картинки сейвятся сразу в папку, то как потом сопоставить картинки и описания, названия картинок 
-            //задаются автоматом? пока описание не передается в фукнцию  
-            create: [
-              {
-                url: 'image.jpg',
-                caption: 'Описание',
-                alt_text: 'Alt'
-              },
-            ],
-          },
+  async saveArticleNew(
+    title: string,
+    keyPoints: string,
+    slug: string,
+    content: string,
+    metaDescription: string,
+    authorId: number,
+  ) {
+    return this.prisma.article.create({
+      data: {
+        title,
+        keyPoints,
+        slug,
+        content,
+        meta_description: metaDescription,
+        created_at: new Date(),
+        updated_at: new Date(), //тут нужно подумать как єто правильно сделать
+        author: {
+          connect: { user_id: authorId },
         },
-      });
-    }
+        images: {
+          //если картинки сейвятся сразу в папку, то как потом сопоставить картинки и описания, названия картинок
+          //задаются автоматом? пока описание не передается в фукнцию
+          create: [
+            {
+              url: 'image.jpg',
+              caption: 'Описание',
+              alt_text: 'Alt',
+            },
+          ],
+        },
+      },
+    });
+  }
 }
-
