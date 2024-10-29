@@ -37,6 +37,13 @@ export class ArticleController {
       fileFilter: validateImageFile,
     }),
   )
+
+  @Post()
+  async save(@Body() body: { title: string; keyPoints: string; slug: string; content: string; metaDescription: string; authorId: number }) {
+    const { title, keyPoints, slug, content, metaDescription, authorId } = body;
+    return this.articleService.saveArticleNew(title, keyPoints, slug, content, metaDescription, authorId);
+  }
+
   async createArticle(
     @Body() articleData: CreateArticleDto,
     @UploadedFiles() files: Express.Multer.File[],
