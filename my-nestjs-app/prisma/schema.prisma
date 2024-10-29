@@ -18,9 +18,10 @@ datasource db {
 model Article {
   article_id        Int       @id @default(autoincrement())
   title             String   
-  keyPoints         String[]   
+  keyPoints         String   
   slug              String     
   created_at        DateTime  @default(now()) 
+  updated_at        DateTime  @updatedAt
   meta_description  String   
   author_id         Int       
   author            User      @relation(fields: [author_id], references: [user_id]) 
