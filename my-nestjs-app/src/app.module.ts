@@ -3,10 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ArticleModule } from './article/article.module';
-import { RedisModule } from './redis/redis.module';
 
 @Module({
-  imports: [UsersModule, ArticleModule, RedisModule],
+  imports: [UsersModule, ArticleModule],
   controllers: [AppController],
   providers: [AppService],
 })

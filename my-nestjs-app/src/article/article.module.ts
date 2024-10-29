@@ -3,7 +3,6 @@ import { ArticleController } from './article.controller';
 import { ArticleService } from './article.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
-import { RedisModule } from '../redis/redis.module'; // Импортируем RedisModule
 
 @Module({
   imports: [
@@ -16,7 +15,6 @@ import { RedisModule } from '../redis/redis.module'; // Импортируем R
         limit: parseInt(process.env.THROTTLE_LIMIT, 10) || 10,
       },
     ]),
-    RedisModule, // Добавляем RedisModule сюда
   ],
   controllers: [ArticleController],
   providers: [ArticleService],
