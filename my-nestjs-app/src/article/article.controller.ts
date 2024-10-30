@@ -6,7 +6,6 @@ import {
   UploadedFiles,
   UseGuards,
   Logger,
-  BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -48,9 +47,10 @@ export class ArticleController {
         filesCount: files?.length,
       });
 
-      if (!files || files.length === 0) {
-        throw new BadRequestException('At least one image is required');
-      }
+      // Убираем проверку на наличие файлов
+      // if (!files || files.length === 0) {
+      //   throw new BadRequestException('At least one image is required');
+      // }
 
       const savedArticle = await this.articleService.saveArticleNew(
         articleData.title,
@@ -69,7 +69,9 @@ export class ArticleController {
 
       return {
         success: true,
-        fileName: files.map((file) => file.filename).join(', '), // Пример, как можно вернуть имена файлов
+        fileName: files
+          ? files.map((file) => file.filename).join(', ')
+          : 'No images uploaded', // Вернуть имена файлов или сообщение, если их нет
         message: 'Article created successfully',
         article: savedArticle,
       };
