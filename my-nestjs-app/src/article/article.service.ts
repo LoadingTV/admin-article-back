@@ -76,6 +76,25 @@ export class ArticleService {
     return savedArticle;
   }
 
+  // Новый метод для получения всех статей
+  async findAll(authorId?: number): Promise<Article[]> {
+    try {
+      const queryBuilder = this.articleRepository
+        .createQueryBuilder('article')
+        .leftJoinAndSelect('article.author', 'author')
+        .leftJoinAndSelect('article.images', 'images');
+
+      if (authorId) {
+        queryBuilder.where('article.authorId = :authorId', { authorId });
+      }
+
+      return await queryBuilder.getMany();
+    } catch (error) {
+      this.logger.error('Failed to fetch articles', error.stack);
+      throw new InternalServerErrorException('Failed to fetch articles');
+    }
+  }
+
   private async saveImages(
     files: Express.Multer.File[],
     article: Article,

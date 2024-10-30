@@ -6,6 +6,8 @@ import {
   UploadedFiles,
   UseGuards,
   Logger,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -14,6 +16,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { ArticleResponse } from './article.interface';
 import { diskStorage } from 'multer';
 import { validateImageFile } from '../common/utils/file-validators';
+import { Article } from './article.entity';
 
 @Controller('api/articles')
 @UseGuards(ThrottlerGuard)
@@ -47,11 +50,6 @@ export class ArticleController {
         filesCount: files?.length,
       });
 
-      // Убираем проверку на наличие файлов
-      // if (!files || files.length === 0) {
-      //   throw new BadRequestException('At least one image is required');
-      // }
-
       const savedArticle = await this.articleService.saveArticleNew(
         articleData.title,
         articleData.keyPoints,
@@ -71,7 +69,7 @@ export class ArticleController {
         success: true,
         fileName: files
           ? files.map((file) => file.filename).join(', ')
-          : 'No images uploaded', // Вернуть имена файлов или сообщение, если их нет
+          : 'No images uploaded',
         message: 'Article created successfully',
         article: savedArticle,
       };
@@ -83,5 +81,14 @@ export class ArticleController {
       });
       throw error;
     }
+  }
+
+  @Get()
+  async getAllArticles(
+    @Query('authorId') authorId?: number,
+  ): Promise<Article[]> {
+    this.logger.log({ event: 'fetch_all_articles' });
+
+    return this.articleService.findAll(authorId);
   }
 }
