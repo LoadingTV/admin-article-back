@@ -1,16 +1,27 @@
-import { IsString, IsOptional, IsUrl } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateArticleDto {
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @IsString()
-  metaDescription: string;
+  @IsNotEmpty()
+  keyPoints: string;
 
   @IsString()
-  text: string;
+  @IsNotEmpty()
+  slug: string;
 
-  @IsOptional()
-  @IsUrl()
-  link?: string;
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+
+  @IsString()
+  @IsNotEmpty()
+  metaDescription: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  authorId: number;
 }

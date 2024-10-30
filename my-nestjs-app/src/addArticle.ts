@@ -1,66 +1,73 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { createConnection, getConnection } from 'typeorm';
+import { User } from './users/user.entity';
+import { Article } from './article/article.entity';
+import { Image } from './image/image.entity';
 
 async function createUser(name: string, email: string, password: string) {
-    try {
-      const newUser = await prisma.user.create({
-        data: {
-          name,
-          email,
-          password,
-        },
-      });
-      console.log('Успех:', newUser);
-    } catch (error) {
-      console.error('Ошибка:', error);
-    } finally {
-      await prisma.$disconnect();
-    }
-  }
-
-async function createArticle() {
   try {
-    const newArticle = await prisma.article.create({
-      data: {
-        title: 'Тестик',
-        keyPoints: 'Слово 1', 
-        slug: 'teastik',
-        created_at: new Date(),
-        updated_at: new Date(),
-        meta_description: 'описание',
-        content: 'Содержимое статьи',
+    const connection = await createConnection();
+    const userRepository = connection.getRepository(User);
 
-        author: {
-          connect: { user_id: 1 } 
-        },
-
-        images: {
-          create: [
-            {
-              url: 'https://example.com/image2.jpg',
-              caption: 'Описание',
-              alt_text: 'Alt'
-            },
-            {
-              url: 'https://example.com/image3.jpg',
-              caption: 'Описание',
-              alt_text: 'Alt'
-            }
-          ]
-        }
-      },
+    const newUser = userRepository.create({
+      name,
+      email,
+      password,
     });
 
-    console.log('Успех:', newArticle);
+    const savedUser = await userRepository.save(newUser);
+    console.log('Успех:', savedUser);
   } catch (error) {
     console.error('Ошибка:', error);
   } finally {
-    await prisma.$disconnect();
+    await getConnection().close(); // Закрываем соединение
   }
 }
 
+async function createArticle() {
+  try {
+    const connection = await createConnection();
+    const articleRepository = connection.getRepository(Article);
+    const userRepository = connection.getRepository(User);
+
+    const author = await userRepository.findOne({ where: { user_id: 1 } });
+
+    if (!author) {
+      console.error('Автор не найден');
+      return;
+    }
+
+    const newArticle = articleRepository.create({
+      title: 'Тестик',
+      keyPoints: 'Слово 1',
+      slug: 'teastik',
+      created_at: new Date(),
+      updated_at: new Date(),
+      meta_description: 'описание',
+      content: 'Содержимое статьи',
+      author,
+      images: [
+        {
+          url: 'https://example.com/image2.jpg',
+          caption: 'Описание',
+          alt_text: 'Alt',
+        },
+        {
+          url: 'https://example.com/image3.jpg',
+          caption: 'Описание',
+          alt_text: 'Alt',
+        },
+      ],
+    });
+
+    const savedArticle = await articleRepository.save(newArticle);
+    console.log('Успех:', savedArticle);
+  } catch (error) {
+    console.error('Ошибка:', error);
+  } finally {
+    await getConnection().close(); // Закрываем соединение
+  }
+}
+
+// Вызываем функции
 createUser('Арина', 'arina@example.com', 'your_password');
 createArticle();
-
-  

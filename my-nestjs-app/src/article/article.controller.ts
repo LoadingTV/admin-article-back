@@ -37,13 +37,6 @@ export class ArticleController {
       fileFilter: validateImageFile,
     }),
   )
-
-  @Post()
-  async save(@Body() body: { title: string; keyPoints: string; slug: string; content: string; metaDescription: string; authorId: number }) {
-    const { title, keyPoints, slug, content, metaDescription, authorId } = body;
-    return this.articleService.saveArticleNew(title, keyPoints, slug, content, metaDescription, authorId);
-  }
-
   async createArticle(
     @Body() articleData: CreateArticleDto,
     @UploadedFiles() files: Express.Multer.File[],
@@ -59,17 +52,27 @@ export class ArticleController {
         throw new BadRequestException('At least one image is required');
       }
 
-      const result = await this.articleService.createArticle(
-        articleData,
+      const savedArticle = await this.articleService.saveArticleNew(
+        articleData.title,
+        articleData.keyPoints,
+        articleData.slug,
+        articleData.content,
+        articleData.metaDescription,
+        articleData.authorId,
         files,
       );
 
       this.logger.log({
         event: 'article_creation_completed',
-        fileName: result.fileName,
+        title: articleData.title,
       });
 
-      return result;
+      return {
+        success: true,
+        fileName: files.map((file) => file.filename).join(', '), // Пример, как можно вернуть имена файлов
+        message: 'Article created successfully',
+        article: savedArticle,
+      };
     } catch (error) {
       this.logger.error({
         event: 'article_creation_failed',
