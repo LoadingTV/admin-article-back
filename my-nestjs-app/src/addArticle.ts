@@ -1,12 +1,18 @@
-import { createConnection, getConnection } from 'typeorm';
+import { createConnection } from 'typeorm';
 import { User } from './users/user.entity';
 import { Article } from './article/article.entity';
-import { Image } from './image/image.entity';
 
 async function createUser(name: string, email: string, password: string) {
+  let connection;
   try {
-    const connection = await createConnection();
+    connection = await createConnection();
     const userRepository = connection.getRepository(User);
+
+    const existingUser = await userRepository.findOne({ where: { email } });
+    if (existingUser) {
+      console.error('Пользователь с таким email уже существует.');
+      return;
+    }
 
     const newUser = userRepository.create({
       name,
@@ -19,17 +25,20 @@ async function createUser(name: string, email: string, password: string) {
   } catch (error) {
     console.error('Ошибка:', error);
   } finally {
-    await getConnection().close(); // Закрываем соединение
+    if (connection) {
+      await connection.close(); // Закрываем соединение
+    }
   }
 }
 
 async function createArticle() {
+  let connection;
   try {
-    const connection = await createConnection();
+    connection = await createConnection();
     const articleRepository = connection.getRepository(Article);
     const userRepository = connection.getRepository(User);
 
-    const author = await userRepository.findOne({ where: { user_id: 1 } });
+    const author = await userRepository.findOne({ where: { id: 1 } }); // Убедитесь, что это корректное название поля
 
     if (!author) {
       console.error('Автор не найден');
@@ -40,23 +49,10 @@ async function createArticle() {
       title: 'Тестик',
       keyPoints: 'Слово 1',
       slug: 'teastik',
-      created_at: new Date(),
-      updated_at: new Date(),
       meta_description: 'описание',
       content: 'Содержимое статьи',
       author,
-      images: [
-        {
-          url: 'https://example.com/image2.jpg',
-          caption: 'Описание',
-          alt_text: 'Alt',
-        },
-        {
-          url: 'https://example.com/image3.jpg',
-          caption: 'Описание',
-          alt_text: 'Alt',
-        },
-      ],
+      // images: [] // Добавьте логику для работы с изображениями, если необходимо
     });
 
     const savedArticle = await articleRepository.save(newArticle);
@@ -64,7 +60,9 @@ async function createArticle() {
   } catch (error) {
     console.error('Ошибка:', error);
   } finally {
-    await getConnection().close(); // Закрываем соединение
+    if (connection) {
+      await connection.close(); // Закрываем соединение
+    }
   }
 }
 
