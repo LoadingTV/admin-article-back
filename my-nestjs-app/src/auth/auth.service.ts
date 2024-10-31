@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service'; // Убедитесь, что путь правильный
 import { User } from '../users/user.entity';
-import { CreateUserDto } from './dto/register.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto'; // Импортируйте свой DTO
 
 @Injectable()
