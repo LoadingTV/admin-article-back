@@ -8,6 +8,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -35,16 +36,22 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK) // Устанавливаем статус 200 для успешного входа
+  
   async login(@Body() loginDto: LoginDto) {
     try {
-      const token = await this.authService.login(loginDto);
+      const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+  
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials'); 
+      }
+  
+      const token = await this.authService.login(user);
       return {
         message: 'Login successful',
         accessToken: token,
       };
     } catch (error) {
-      // Обработайте ошибки входа, например, неверные учетные данные
-      throw error;
+      throw error; 
     }
   }
 
