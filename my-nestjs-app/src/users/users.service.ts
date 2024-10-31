@@ -2,6 +2,7 @@ import {
   Injectable,
   Logger,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from './user.entity';
@@ -19,6 +20,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  // Создание нового пользователя
   async createUser(createUserData: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserData);
     try {
@@ -29,9 +31,16 @@ export class UsersService {
     }
   }
 
+  // Получение пользователя по ID
   async getUserById(userId: number): Promise<User | null> {
     try {
-      return await this.userRepository.findOne({ where: { user_id: userId } });
+      const user = await this.userRepository.findOne({
+        where: { user_id: userId },
+      });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+      return user;
     } catch (error) {
       this.logger.error(`Failed to fetch user with ID ${userId}`, error.stack);
       throw new InternalServerErrorException(
@@ -40,6 +49,7 @@ export class UsersService {
     }
   }
 
+  // Получение всех пользователей
   async getAllUsers(): Promise<User[]> {
     try {
       return await this.userRepository.find();
@@ -47,5 +57,24 @@ export class UsersService {
       this.logger.error('Failed to fetch users', error.stack);
       throw new InternalServerErrorException('Failed to fetch users');
     }
+  }
+
+  // Валидация пользователя по email и паролю
+  async validateUser(email: string, password: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (user && user.password === password) {
+      return user; // Возвращаем пользователя, если пароль совпадает
+    }
+    return null; // Возвращаем null, если пользователь не найден или пароль не совпадает
+  }
+
+  // Получение пользователя по email
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { email } });
+  }
+
+  // Получение пользователя по ID (необязательный, если он уже есть)
+  async findUserById(id: number): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { user_id: id } });
   }
 }
