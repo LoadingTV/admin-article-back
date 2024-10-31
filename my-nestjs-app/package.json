@@ -84,5 +84,5 @@
   },
   "prisma": {
     "schema": "prisma/schema.prisma"
-}
+  }
 }

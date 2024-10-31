@@ -1,6 +1,7 @@
 // src/user/user.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany,ManyToOne } from 'typeorm';
 import { Article } from '../article/article.entity';
+import { Role } from '../users/role.entity'; 
 
 @Entity()
 export class User {
@@ -10,6 +11,9 @@ export class User {
   @Column()
   name: string; // Имя пользователя
 
+  @Column()
+  surname: string; // Фамилия пользователя
+
   @Column({ unique: true })
   email: string; // Email пользователя
 
@@ -18,4 +22,7 @@ export class User {
 
   @OneToMany(() => Article, (article) => article.author)
   articles: Article[];
+
+  @ManyToOne(() => Role, (role) => role.users, { nullable: true })
+  role: Role;
 }

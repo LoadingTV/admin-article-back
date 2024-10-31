@@ -23,7 +23,6 @@ export class UsersController {
     @Body('surname') surname: string,
     @Body('email') email: string,
     @Body('password') password: string,
-    @Body('role_id') role_id: number
   ) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,7 +33,7 @@ export class UsersController {
           surname,
           email,
           password: hashedPassword,
-          role_id,
+          role_id: 1,
         },
       });
 
