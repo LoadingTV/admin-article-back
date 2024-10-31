@@ -1,24 +1,30 @@
 // src/user/user.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany,ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { Article } from '../article/article.entity';
-import { Role } from '../users/role.entity'; 
+import { Role } from '../users/role.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  user_id: number; // Идентификатор пользователя
+  user_id: number;
 
   @Column()
-  name: string; // Имя пользователя
+  name: string;
 
   @Column()
-  surname: string; // Фамилия пользователя
+  surname: string;
 
   @Column({ unique: true })
-  email: string; // Email пользователя
+  email: string;
 
   @Column()
-  password: string; // Пароль пользователя
+  password: string;
 
   @OneToMany(() => Article, (article) => article.author)
   articles: Article[];

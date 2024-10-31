@@ -8,6 +8,7 @@ import { User } from './users/user.entity';
 import { Article } from './article/article.entity';
 import { Image } from './image/image.entity';
 import { ImageModule } from './image/image.module';
+import { Role } from './users/role.entity';
 
 @Module({
   imports: [
@@ -18,13 +19,13 @@ import { ImageModule } from './image/image.module';
       username: 'postgres',
       password: '1351',
       database: 'nestjs_db',
-      entities: [User, Article, Image],
+      entities: [User, Article, Image, Role],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User, Article, Image]),
+    TypeOrmModule.forFeature([User, Article, Image, Role]),
     UserModule,
     ArticleModule,
-    ImageModule, // Подключаем модуль Image
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
