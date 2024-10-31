@@ -82,6 +82,11 @@ export class ArticleController {
       throw error;
     }
   }
+  @Get('latest')
+  async getLatestArticles(): Promise<Article[]> {
+    this.logger.log({ event: 'fetch_latest_articles' });
+    return this.articleService.findLatestArticles();
+  }
 
   @Get()
   async getAllArticles(

@@ -95,6 +95,20 @@ export class ArticleService {
     }
   }
 
+  // Новый метод для получения последних 10 статей
+  async findLatestArticles(): Promise<Article[]> {
+    try {
+      return await this.articleRepository.find({
+        order: { created_at: 'DESC' }, // Предполагается, что у вас есть поле created_at
+        take: 10, // Получаем последние 10 статей
+        relations: ['images', 'author'], // Загружаем изображения и автора
+      });
+    } catch (error) {
+      this.logger.error('Failed to fetch latest articles', error.stack);
+      throw new InternalServerErrorException('Failed to fetch latest articles');
+    }
+  }
+
   private async saveImages(
     files: Express.Multer.File[],
     article: Article,
