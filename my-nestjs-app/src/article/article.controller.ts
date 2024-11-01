@@ -8,6 +8,7 @@ import {
   Logger,
   Get,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -23,7 +24,7 @@ import { Article } from './article.entity';
 export class ArticleController {
   private readonly logger = new Logger(ArticleController.name);
 
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(private readonly articleService: ArticleService) { }
 
   @Post()
   @UseInterceptors(
@@ -95,5 +96,38 @@ export class ArticleController {
     this.logger.log({ event: 'fetch_all_articles' });
 
     return this.articleService.findAll(authorId);
+  }
+
+  @Get()
+  async getAArticlesByUserId(
+    @Query('authorId') authorId?: number,
+  ): Promise<Article[]> {
+    this.logger.log({ event: 'fetch_all_articles' });
+    return this.articleService.findAll(authorId);
+  }
+
+
+  @Get('count')
+  async countArticlesByAuthor(@Query('authorId', ParseIntPipe) authorId: number): Promise<{ count: number }> {
+    const count = await this.articleService.countArticlesByAuthorId(authorId);
+    return { count };
+  }
+
+  @Get()
+  async getAArticlesByUserIdAndStatus(
+    @Query('authorId') authorId?: number,
+    @Query('statusId') statusId?: number,
+  ): Promise<Article[]> {
+    this.logger.log({ event: 'fetch_articles_by_author_and_status' });
+    return this.articleService.findByAuthorIdAndStatus(authorId, statusId);
+  }
+
+  @Get('count')
+  async countArticlesByAuthorAndStatus(
+    @Query('authorId', ParseIntPipe) authorId: number,
+    @Query('statusId', ParseIntPipe) statusId?: number,
+  ): Promise<{ count: number }> {
+    const count = await this.articleService.countArticlesByAuthorAndStatus(authorId, statusId);
+    return { count };
   }
 }

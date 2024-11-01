@@ -22,7 +22,7 @@ export class ArticleService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async saveArticleNew(
     title: string,
@@ -92,6 +92,70 @@ export class ArticleService {
     } catch (error) {
       this.logger.error('Failed to fetch articles', error.stack);
       throw new InternalServerErrorException('Failed to fetch articles');
+    }
+  }
+
+  
+  async findByAuthorId(authorId: number): Promise<Article[]> {
+    try {
+      return await this.articleRepository.find({
+        where: { author: { user_id: authorId } },
+        relations: ['author', 'images'],
+      });
+    } catch (error) {
+      this.logger.error('Failed to fetch articles by author', error.stack);
+      throw new InternalServerErrorException('Failed to fetch articles by author');
+    }
+  }
+
+  async countArticlesByAuthorId(authorId: number): Promise<number> {
+    try {
+      return await this.articleRepository.count({
+        where: { author: { user_id: authorId } },
+      });
+    } catch (error) {
+      this.logger.error('Failed to count articles by author', error.stack);
+      throw new InternalServerErrorException('Failed to count articles by author');
+    }
+  }
+
+  async findByAuthorIdAndStatus(authorId?: number, statusId?: number): Promise<Article[]> {
+    try {
+      const queryBuilder = this.articleRepository
+        .createQueryBuilder('article')
+        .leftJoinAndSelect('article.author', 'author')
+        .leftJoinAndSelect('article.images', 'images')
+        .leftJoinAndSelect('article.status', 'status'); 
+  
+      if (authorId) {
+        queryBuilder.andWhere('article.author.user_id = :authorId', { authorId });
+      }
+      if (statusId) {
+        queryBuilder.andWhere('article.status.status_id = :statusId', { statusId });
+      }
+  
+      return await queryBuilder.getMany();
+    } catch (error) {
+      this.logger.error('Failed to fetch articles by author and status', error.stack);
+      throw new InternalServerErrorException('Failed to fetch articles by author and status');
+    }
+  }
+
+  async countArticlesByAuthorAndStatus(authorId: number, statusId?: number): Promise<number> {
+    try {
+      const queryBuilder = this.articleRepository
+        .createQueryBuilder('article')
+        .leftJoin('article.author', 'author')
+        .where('author.user_id = :authorId', { authorId });
+  
+      if (statusId) {
+        queryBuilder.andWhere('article.status.status_id = :statusId', { statusId });
+      }
+  
+      return await queryBuilder.getCount();
+    } catch (error) {
+      this.logger.error('Failed to count articles by author and status', error.stack);
+      throw new InternalServerErrorException('Failed to count articles by author and status');
     }
   }
 

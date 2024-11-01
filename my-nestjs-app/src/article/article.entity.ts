@@ -7,38 +7,42 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../users/user.entity'; // Убедитесь, что путь к сущности User корректный
-import { Image } from '../image/image.entity'; // Убедитесь, что путь к сущности Image корректный
+import { User } from '../users/user.entity'; 
+import { Image } from '../image/image.entity'; 
+import { Status } from '../status/status.entity'; 
 
 @Entity()
 export class Article {
   @PrimaryGeneratedColumn()
-  article_id: number; // Идентификатор статьи
+  article_id: number;
 
   @Column()
-  title: string; // Заголовок статьи
+  title: string;
 
   @Column()
-  keyPoints: string; // Ключевые моменты статьи
+  keyPoints: string;
 
-  @Column({ unique: true }) // Уникальный slug
+  @Column({ unique: true })
   slug: string;
 
   @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date; // Дата создания статьи
+  created_at: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date;
 
   @Column()
-  meta_description: string; // Мета-описание статьи
+  meta_description: string;
 
-  @Column('text') // Измените тип на 'text', если контент может быть длинным
-  content: string; // Содержимое статьи
+  @Column('text')
+  content: string;
 
   @ManyToOne(() => User, (user) => user.articles)
   author: User;
 
   @OneToMany(() => Image, (image) => image.article)
   images: Image[];
+
+  @ManyToOne(() => Status)
+  status: Status;
 }

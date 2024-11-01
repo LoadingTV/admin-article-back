@@ -22,6 +22,14 @@ model Article {
   author            User      @relation(fields: [author_id], references: [user_id]) 
   images            Image[]   @relation("ArticleImages") 
   content           String
+  status_id        Int
+  status           Status    @relation(fields: [status_id], references: [status_id])
+}
+
+model Status {
+  status_id  Int       @id @default(autoincrement())
+  name       String    @unique
+  articles   Article[]
 }
 
 model Image {

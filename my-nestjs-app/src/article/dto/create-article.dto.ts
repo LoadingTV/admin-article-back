@@ -24,4 +24,8 @@ export class CreateArticleDto {
   @IsNumber()
   @IsNotEmpty()
   authorId: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  status_id: number;
 }
