@@ -10,6 +10,7 @@ import { Image } from './image/image.entity';
 import { ImageModule } from './image/image.module';
 import { Role } from './users/role.entity';
 import { Status } from './status/status.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Status } from './status/status.entity';
     UserModule,
     ArticleModule,
     ImageModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

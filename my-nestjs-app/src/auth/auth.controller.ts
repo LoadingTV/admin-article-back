@@ -1,4 +1,3 @@
-// src/auth/auth.controller.ts
 import {
   Controller,
   Post,
@@ -9,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -17,47 +17,61 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name); // Создаем экземпляр логгера
+
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @HttpCode(HttpStatus.CREATED) // Устанавливаем статус 201 для успешного создания пользователя
+  @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto) {
+    this.logger.log('Registration attempt', { email: registerDto.email }); // Логируем попытку регистрации
+
     try {
       const user = await this.authService.register(registerDto);
+      this.logger.log('User registered successfully', { userId: user.user_id });
       return {
         message: 'User registered successfully',
         user,
       };
     } catch (error) {
-      // Здесь можно обработать ошибки, например, уже существующий пользователь
+      this.logger.error('Registration failed', error); // Логируем ошибку
       throw error;
     }
   }
 
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Устанавливаем статус 200 для успешного входа
-  
+  @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
+    this.logger.log('Login attempt', { email: loginDto.email }); // Логируем попытку входа
+
     try {
-      const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-  
+      const user = await this.authService.validateUser(
+        loginDto.email,
+        loginDto.password,
+      );
+
       if (!user) {
-        throw new UnauthorizedException('Invalid credentials'); 
+        this.logger.warn('Invalid credentials', { email: loginDto.email }); // Логируем предупреждение при неверных данных
+        throw new UnauthorizedException('Invalid credentials');
       }
-  
+
       const token = await this.authService.login(user);
+      this.logger.log('Login successful', { userId: user.user_id });
       return {
         message: 'Login successful',
         accessToken: token,
       };
     } catch (error) {
-      throw error; 
+      this.logger.error('Login failed', error); // Логируем ошибку
+      throw error;
     }
   }
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   async getProfile(@Request() req) {
+    this.logger.log('Fetching user profile', { userId: req.user.user_id }); // Логируем получение профиля
+
     return {
       message: 'User profile fetched successfully',
       user: req.user,
