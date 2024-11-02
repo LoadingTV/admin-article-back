@@ -9,6 +9,7 @@ import { Article } from './article/article.entity';
 import { Image } from './image/image.entity';
 import { ImageModule } from './image/image.module';
 import { Role } from './users/role.entity';
+import { Status } from './status/status.entity';
 
 @Module({
   imports: [
@@ -19,10 +20,10 @@ import { Role } from './users/role.entity';
       username: 'postgres',
       password: '1351',
       database: 'nestjs_db',
-      entities: [User, Article, Image, Role],
+      entities: [User, Article, Image, Role, Status],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User, Article, Image, Role]),
+    TypeOrmModule.forFeature([User, Article, Image, Role, Status]),
     UserModule,
     ArticleModule,
     ImageModule,
