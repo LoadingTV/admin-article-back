@@ -9,6 +9,7 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from './role.entity'; 
 
 @Injectable()
 export class UsersService {
@@ -18,11 +19,26 @@ export class UsersService {
     private readonly configService: ConfigService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)  
+    private roleRepository: Repository<Role>
   ) {}
 
-  // Создание нового пользователя
   async createUser(createUserData: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(createUserData);
+    // Загружаем роль с id 1 (или нужное значение) из базы данных
+    const defaultRole = await this.roleRepository.findOne({ where: { id: 1 } });
+    
+    if (!defaultRole) {
+      throw new InternalServerErrorException('Default role not found');
+    }
+  
+    // Создаем пользователя с установленной ролью
+    const user = this.userRepository.create({
+      ...createUserData,
+      role: defaultRole,
+    });
+  
+    this.logger.log(`Creating user with role: ${user.role.name}`);
+  
     try {
       return await this.userRepository.save(user);
     } catch (error) {
