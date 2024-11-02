@@ -96,17 +96,35 @@ export class ArticleService {
 
   async findByAuthorId(authorId: number): Promise<Article[]> {
     try {
-      return await this.articleRepository.find({
-        where: { author: { user_id: authorId } },
-        relations: ['author', 'images'],
-      });
+      const articles = await this.articleRepository
+        .createQueryBuilder('article')
+        .leftJoinAndSelect('article.author', 'author')
+        .leftJoinAndSelect('article.images', 'images')
+        .select([
+          'article.article_id',
+          'article.title',
+          'article.keyPoints',
+          'article.slug',
+          'article.created_at',
+          'article.updated_at',
+          'article.meta_description',
+          'article.content',
+          'author.name',
+          'author.surname',
+          'images.image_id',
+          'images.url',
+          'images.caption',
+          'images.alt_text',
+        ])
+        .where('author.user_id = :authorId', { authorId })
+        .getMany();
+      return articles;
     } catch (error) {
       this.logger.error('Failed to fetch articles by author', error.stack);
-      throw new InternalServerErrorException(
-        'Failed to fetch articles by author',
-      );
+      throw new InternalServerErrorException('Failed to fetch articles by author');
     }
   }
+  
 
   async countArticlesByAuthorId(authorId: number): Promise<number> {
     try {
