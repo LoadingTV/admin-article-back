@@ -53,6 +53,7 @@ export class AuthService {
       this.logger.log(`Logging in user with email: ${user.email}`);
       const payload = { email: user.email, user_id: user.user_id };
       const access_token = this.jwtService.sign(payload);
+      this.logger.log(`Generated access token: ${access_token}`);
       return { access_token };
     } catch (error) {
       this.logger.error(`Error logging in user: ${error.message}`);

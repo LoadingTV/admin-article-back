@@ -31,7 +31,6 @@ export class UsersService {
     }
   }
 
-  // Получение пользователя по ID
   async getUserById(userId: number): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({
@@ -71,10 +70,5 @@ export class UsersService {
   // Получение пользователя по email
   async findByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { email } });
-  }
-
-  // Получение пользователя по ID (необязательный, если он уже есть)
-  async findUserById(id: number): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { user_id: id } });
   }
 }
