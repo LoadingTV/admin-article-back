@@ -22,7 +22,7 @@ export class ArticleService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async saveArticleNew(
     title: string,
@@ -76,7 +76,6 @@ export class ArticleService {
     return savedArticle;
   }
 
-  // Новый метод для получения всех статей
   async findAll(authorId?: number): Promise<Article[]> {
     try {
       const queryBuilder = this.articleRepository
@@ -95,7 +94,6 @@ export class ArticleService {
     }
   }
 
-  
   async findByAuthorId(authorId: number): Promise<Article[]> {
     try {
       return await this.articleRepository.find({
@@ -104,7 +102,9 @@ export class ArticleService {
       });
     } catch (error) {
       this.logger.error('Failed to fetch articles by author', error.stack);
-      throw new InternalServerErrorException('Failed to fetch articles by author');
+      throw new InternalServerErrorException(
+        'Failed to fetch articles by author',
+      );
     }
   }
 
@@ -115,57 +115,80 @@ export class ArticleService {
       });
     } catch (error) {
       this.logger.error('Failed to count articles by author', error.stack);
-      throw new InternalServerErrorException('Failed to count articles by author');
+      throw new InternalServerErrorException(
+        'Failed to count articles by author',
+      );
     }
   }
 
-  async findByAuthorIdAndStatus(authorId?: number, statusId?: number): Promise<Article[]> {
+  async findByAuthorIdAndStatus(
+    authorId?: number,
+    statusId?: number,
+  ): Promise<Article[]> {
     try {
       const queryBuilder = this.articleRepository
         .createQueryBuilder('article')
         .leftJoinAndSelect('article.author', 'author')
         .leftJoinAndSelect('article.images', 'images')
-        .leftJoinAndSelect('article.status', 'status'); 
-  
+        .leftJoinAndSelect('article.status', 'status');
+
       if (authorId) {
-        queryBuilder.andWhere('article.author.user_id = :authorId', { authorId });
+        queryBuilder.andWhere('article.author.user_id = :authorId', {
+          authorId,
+        });
       }
       if (statusId) {
-        queryBuilder.andWhere('article.status.status_id = :statusId', { statusId });
+        queryBuilder.andWhere('article.status.status_id = :statusId', {
+          statusId,
+        });
       }
-  
+
       return await queryBuilder.getMany();
     } catch (error) {
-      this.logger.error('Failed to fetch articles by author and status', error.stack);
-      throw new InternalServerErrorException('Failed to fetch articles by author and status');
+      this.logger.error(
+        'Failed to fetch articles by author and status',
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        'Failed to fetch articles by author and status',
+      );
     }
   }
 
-  async countArticlesByAuthorAndStatus(authorId: number, statusId?: number): Promise<number> {
+  async countArticlesByAuthorAndStatus(
+    authorId: number,
+    statusId?: number,
+  ): Promise<number> {
     try {
       const queryBuilder = this.articleRepository
         .createQueryBuilder('article')
         .leftJoin('article.author', 'author')
         .where('author.user_id = :authorId', { authorId });
-  
+
       if (statusId) {
-        queryBuilder.andWhere('article.status.status_id = :statusId', { statusId });
+        queryBuilder.andWhere('article.status.status_id = :statusId', {
+          statusId,
+        });
       }
-  
+
       return await queryBuilder.getCount();
     } catch (error) {
-      this.logger.error('Failed to count articles by author and status', error.stack);
-      throw new InternalServerErrorException('Failed to count articles by author and status');
+      this.logger.error(
+        'Failed to count articles by author and status',
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        'Failed to count articles by author and status',
+      );
     }
   }
 
-  // Новый метод для получения последних 10 статей
   async findLatestArticles(): Promise<Article[]> {
     try {
       return await this.articleRepository.find({
-        order: { created_at: 'DESC' }, // Предполагается, что у вас есть поле created_at
-        take: 10, // Получаем последние 10 статей
-        relations: ['images', 'author'], // Загружаем изображения и автора
+        order: { created_at: 'DESC' },
+        take: 10,
+        relations: ['images', 'author'],
       });
     } catch (error) {
       this.logger.error('Failed to fetch latest articles', error.stack);
@@ -176,7 +199,7 @@ export class ArticleService {
   private async saveImages(
     files: Express.Multer.File[],
     article: Article,
-    altText: string = 'Описание', // параметр для alt_text
+    altText: string = 'Описание',
   ): Promise<void> {
     for (const file of files) {
       const image = this.imageRepository.create({

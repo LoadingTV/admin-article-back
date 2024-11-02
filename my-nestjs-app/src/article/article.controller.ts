@@ -19,12 +19,12 @@ import { diskStorage } from 'multer';
 import { validateImageFile } from '../common/utils/file-validators';
 import { Article } from './article.entity';
 
-@Controller('api/articles')
+@Controller('/articles')
 @UseGuards(ThrottlerGuard)
 export class ArticleController {
   private readonly logger = new Logger(ArticleController.name);
 
-  constructor(private readonly articleService: ArticleService) { }
+  constructor(private readonly articleService: ArticleService) {}
 
   @Post()
   @UseInterceptors(
@@ -83,6 +83,7 @@ export class ArticleController {
       throw error;
     }
   }
+
   @Get('latest')
   async getLatestArticles(): Promise<Article[]> {
     this.logger.log({ event: 'fetch_latest_articles' });
@@ -94,40 +95,43 @@ export class ArticleController {
     @Query('authorId') authorId?: number,
   ): Promise<Article[]> {
     this.logger.log({ event: 'fetch_all_articles' });
-
     return this.articleService.findAll(authorId);
   }
 
-  @Get()
-  async getAArticlesByUserId(
-    @Query('authorId') authorId?: number,
+  @Get('by-author')
+  async getArticlesByUserId(
+    @Query('authorId', ParseIntPipe) authorId: number,
   ): Promise<Article[]> {
-    this.logger.log({ event: 'fetch_all_articles' });
-    return this.articleService.findAll(authorId);
+    this.logger.log({ event: 'fetch_articles_by_author' });
+    return this.articleService.findByAuthorId(authorId);
   }
-
 
   @Get('count')
-  async countArticlesByAuthor(@Query('authorId', ParseIntPipe) authorId: number): Promise<{ count: number }> {
+  async countArticlesByAuthor(
+    @Query('authorId', ParseIntPipe) authorId: number,
+  ): Promise<{ count: number }> {
     const count = await this.articleService.countArticlesByAuthorId(authorId);
     return { count };
   }
 
-  @Get()
-  async getAArticlesByUserIdAndStatus(
-    @Query('authorId') authorId?: number,
-    @Query('statusId') statusId?: number,
+  @Get('by-author-status')
+  async getArticlesByAuthorAndStatus(
+    @Query('authorId', ParseIntPipe) authorId: number,
+    @Query('statusId', ParseIntPipe) statusId?: number,
   ): Promise<Article[]> {
     this.logger.log({ event: 'fetch_articles_by_author_and_status' });
     return this.articleService.findByAuthorIdAndStatus(authorId, statusId);
   }
 
-  @Get('count')
+  @Get('count-by-status')
   async countArticlesByAuthorAndStatus(
     @Query('authorId', ParseIntPipe) authorId: number,
     @Query('statusId', ParseIntPipe) statusId?: number,
   ): Promise<{ count: number }> {
-    const count = await this.articleService.countArticlesByAuthorAndStatus(authorId, statusId);
+    const count = await this.articleService.countArticlesByAuthorAndStatus(
+      authorId,
+      statusId,
+    );
     return { count };
   }
 }

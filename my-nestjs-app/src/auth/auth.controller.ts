@@ -17,7 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  private readonly logger = new Logger(AuthController.name); // Создаем экземпляр логгера
+  private readonly logger = new Logger(AuthController.name);
 
   constructor(private readonly authService: AuthService) {}
 
@@ -34,7 +34,7 @@ export class AuthController {
         user,
       };
     } catch (error) {
-      this.logger.error('Registration failed', error); // Логируем ошибку
+      this.logger.error('Registration failed', error);
       throw error;
     }
   }
@@ -62,7 +62,7 @@ export class AuthController {
         accessToken: token,
       };
     } catch (error) {
-      this.logger.error('Login failed', error); // Логируем ошибку
+      this.logger.error('Login failed', error);
       throw error;
     }
   }
@@ -70,7 +70,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   async getProfile(@Request() req) {
-    this.logger.log('Fetching user profile', { userId: req.user.user_id }); // Логируем получение профиля
+    this.logger.log('Fetching user profile', { userId: req.user.user_id });
 
     return {
       message: 'User profile fetched successfully',
