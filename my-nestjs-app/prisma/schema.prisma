@@ -22,8 +22,9 @@ model Article {
   author            User      @relation(fields: [author_id], references: [user_id]) 
   images            Image[]   @relation("ArticleImages") 
   content           String
-  status_id        Int
-  status           Status    @relation(fields: [status_id], references: [status_id])
+  status_id         Int
+  status            Status    @relation(fields: [status_id], references: [status_id])
+  faqs              FAQ[]     @relation("ArticleFAQs") 
 }
 
 model Status {
@@ -58,4 +59,12 @@ model Role {
   role_id    Int             @id @default(autoincrement())
   role_name  String
   users      User[]          @relation("RoleUsers") 
+}
+
+model FAQ {
+  faq_id       Int       @id @default(autoincrement())
+  question     String   
+  answer       String    
+  article_id   Int       
+  article      Article   @relation("ArticleFAQs", fields: [article_id], references: [article_id])
 }
