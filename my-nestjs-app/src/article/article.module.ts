@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Article } from './article.entity';
 import { Image } from '../image/image.entity';
 import { UserModule } from '../users/users.module';
+import { FaqRepository } from '../faq/faq.repository'; 
+import { FaqModule } from '../faq/faq.module'; 
 
 @Module({
   imports: [
@@ -14,7 +16,7 @@ import { UserModule } from '../users/users.module';
       isGlobal: true,
     }),
     ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, ],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => [
         {
@@ -27,6 +29,9 @@ import { UserModule } from '../users/users.module';
     UserModule,
   ],
   controllers: [ArticleController],
-  providers: [ArticleService],
+  providers: [
+    ArticleService,
+    FaqRepository, 
+  ],
 })
 export class ArticleModule {}

@@ -39,6 +39,7 @@ export class ArticleController {
       }),
       fileFilter: validateImageFile,
     }),
+    FilesInterceptor('files')
   )
   async createArticle(
     @Body() articleData: CreateArticleDto,
@@ -59,6 +60,7 @@ export class ArticleController {
         articleData.metaDescription,
         articleData.authorId,
         files,
+        articleData.faqs, 
       );
 
       this.logger.log({

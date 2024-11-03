@@ -11,6 +11,9 @@ import { ImageModule } from './image/image.module';
 import { Role } from './users/role.entity';
 import { Status } from './status/status.entity';
 import { AuthModule } from './auth/auth.module';
+import { PrismaService } from '../prisma/prisma.service';
+import { FaqModule } from './faq/faq.module';
+
 
 @Module({
   imports: [
@@ -29,8 +32,13 @@ import { AuthModule } from './auth/auth.module';
     ArticleModule,
     ImageModule,
     AuthModule,
+    FaqModule,
   ],
+  exports: [PrismaService],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    PrismaService,
+  ],
 })
 export class AppModule {}

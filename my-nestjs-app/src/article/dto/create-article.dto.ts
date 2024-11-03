@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber,IsOptional,IsArray } from 'class-validator';
 
 export class CreateArticleDto {
   @IsString()
@@ -24,4 +24,8 @@ export class CreateArticleDto {
   @IsNumber()
   @IsNotEmpty()
   authorId: number;
+
+  @IsOptional()
+  @IsArray()
+  faqs?: { question: string; answer: string }[];
 }

@@ -10,6 +10,7 @@ import {
 import { User } from '../users/user.entity';
 import { Image } from '../image/image.entity';
 import { Status } from '../status/status.entity';
+import { Faq } from '../faq/faq.entity'; 
 
 @Entity()
 export class Article {
@@ -45,4 +46,10 @@ export class Article {
 
   @ManyToOne(() => Status)
   status: Status;
+
+  @OneToMany(() => Faq, (faq) => faq.article) 
+  faqs: Faq[]; 
+
+  @Column() 
+  status_id: number;
 }

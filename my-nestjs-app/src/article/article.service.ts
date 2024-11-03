@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Article } from './article.entity';
 import { Image } from '../image/image.entity';
 import { User } from '../users/user.entity';
+import { Faq } from '../faq/faq.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -22,6 +23,8 @@ export class ArticleService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Faq) 
+    private readonly faqRepository: Repository<Faq>,
   ) {}
 
   async saveArticleNew(
@@ -32,6 +35,7 @@ export class ArticleService {
     metaDescription: string,
     authorId: number,
     files: Express.Multer.File[],
+    faqs: { question: string; answer: string }[], 
   ): Promise<Article> {
     let author: User;
     try {
@@ -44,14 +48,14 @@ export class ArticleService {
       this.logger.error('Error finding author', error.stack);
       throw new InternalServerErrorException('Error finding author');
     }
-
+  
     if (!author) {
       this.logger.error(`Author with ID ${authorId} not found`);
       throw new InternalServerErrorException(
         `Author with ID ${authorId} not found`,
       );
     }
-
+  
     const article = this.articleRepository.create({
       title,
       keyPoints,
@@ -59,22 +63,30 @@ export class ArticleService {
       content,
       meta_description: metaDescription,
       author,
+      status_id: 1, 
     });
-
-    let savedArticle: Article;
+    
     try {
-      savedArticle = await this.articleRepository.save(article);
+      const savedArticle = await this.articleRepository.save(article);
+    
+      if (faqs && faqs.length > 0) {
+        const faqEntities = faqs.map(faq => ({
+          question: faq.question,
+          answer: faq.answer,
+          article: savedArticle,
+        }));
+    
+        await this.faqRepository.save(faqEntities);
+      }
+    
+      return savedArticle;
     } catch (error) {
-      this.logger.error('Failed to save article', error.stack);
-      throw new InternalServerErrorException('Failed to save article');
+      this.logger.error('Error saving article', error.stack);
+      throw new InternalServerErrorException('Error saving article');
     }
-
-    if (files && files.length > 0) {
-      await this.saveImages(files, savedArticle);
-    }
-
-    return savedArticle;
   }
+    
+  
 
   async findAll(authorId?: number): Promise<Article[]> {
     try {
