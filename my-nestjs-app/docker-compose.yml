@@ -8,7 +8,7 @@ services:
     ports:
       - '3001:3001'
     environment:
-      DATABASE_URL: postgresql://postgres:loading1351@db:5433/postgres
+      DATABASE_URL: postgresql://postgres:loading1351@db:5432/postgres
     depends_on:
       - db
     volumes:
@@ -26,5 +26,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: loading@load.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - db
+
 volumes:
-  pgdata: # Определение volume для хранения данных
+  pgdata:

@@ -39,17 +39,21 @@ export class ArticleController {
       }),
       fileFilter: validateImageFile,
     }),
-    FilesInterceptor('files')
   )
   async createArticle(
     @Body() articleData: CreateArticleDto,
     @UploadedFiles() files: Express.Multer.File[],
   ): Promise<ArticleResponse> {
     try {
+      // Логирование начала создания статьи
       this.logger.log({
         event: 'article_creation_started',
         title: articleData.title,
-        filesCount: files?.length,
+        slug: articleData.slug,
+        content: articleData.content,
+        faqs: articleData.faqs,
+        filesCount: files.length,
+        uploadedFiles: files.map((file) => file.originalname), // Логируем имена загружаемых файлов
       });
 
       const savedArticle = await this.articleService.saveArticleNew(
@@ -60,30 +64,39 @@ export class ArticleController {
         articleData.metaDescription,
         articleData.authorId,
         files,
-        articleData.faqs, 
+        articleData.faqs,
       );
 
+      // Логирование успешного завершения создания статьи
       this.logger.log({
         event: 'article_creation_completed',
         title: articleData.title,
+        articleId: savedArticle.id, // Логируем ID созданной статьи
       });
 
       return {
         success: true,
-        fileName: files
+        fileName: files.length
           ? files.map((file) => file.filename).join(', ')
           : 'No images uploaded',
         message: 'Article created successfully',
         article: savedArticle,
       };
     } catch (error) {
+      // Логирование ошибки при создании статьи
       this.logger.error({
         event: 'article_creation_failed',
         error: error.message,
         title: articleData.title,
+        stack: error.stack, // Логируем стек ошибки для более подробной информации
       });
       throw error;
     }
+  }
+
+  @Get('test')
+  async testRoute(): Promise<string> {
+    return 'Server is working!';
   }
 
   @Get('latest')

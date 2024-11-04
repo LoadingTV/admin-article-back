@@ -1,25 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FAQ } from '@prisma/client';
+import { CreateFaqDto } from './dto/faq.dto';
 
 @Injectable()
 export class FaqRepository {
-  save(
-    faqEntities: {
-      question: string;
-      answer: string;
-      article: import('../article/article.entity').Article;
-    }[],
-  ) {
-    throw new Error('Method not implemented.');
-  }
   constructor(private prisma: PrismaService) {}
 
-  async create(faqData: {
-    question: string;
-    answer: string;
-    articleId: number;
-  }): Promise<FAQ> {
+  async create(faqData: CreateFaqDto): Promise<FAQ> {
     return this.prisma.fAQ.create({
       data: {
         question: faqData.question,
@@ -31,5 +19,24 @@ export class FaqRepository {
 
   async findAll(): Promise<FAQ[]> {
     return this.prisma.fAQ.findMany();
+  }
+
+  async save(
+    faqEntities: {
+      question: string;
+      answer: string;
+      articleId: number;
+    }[],
+  ): Promise<FAQ[]> {
+    const createdFaqs = await Promise.all(
+      faqEntities.map((faq) =>
+        this.create({
+          question: faq.question,
+          answer: faq.answer,
+          articleId: faq.articleId,
+        }),
+      ),
+    );
+    return createdFaqs;
   }
 }

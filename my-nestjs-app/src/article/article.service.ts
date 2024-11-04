@@ -26,6 +26,19 @@ export class ArticleService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  private async findAuthorById(authorId: number): Promise<User> {
+    const author = await this.userRepository.findOne({
+      where: { user_id: authorId },
+    });
+    if (!author) {
+      this.logger.error(`Author with ID ${authorId} not found`);
+      throw new InternalServerErrorException(
+        `Author with ID ${authorId} not found`,
+      );
+    }
+    return author;
+  }
+
   async saveArticleNew(
     title: string,
     keyPoints: string,
@@ -36,24 +49,7 @@ export class ArticleService {
     files: Express.Multer.File[],
     faqs: { question: string; answer: string }[],
   ): Promise<Article> {
-    let author: User;
-    try {
-      author = await this.userRepository.findOne({
-        where: {
-          user_id: authorId,
-        },
-      });
-    } catch (error) {
-      this.logger.error('Error finding author', error.stack);
-      throw new InternalServerErrorException('Error finding author');
-    }
-
-    if (!author) {
-      this.logger.error(`Author with ID ${authorId} not found`);
-      throw new InternalServerErrorException(
-        `Author with ID ${authorId} not found`,
-      );
-    }
+    const author = await this.findAuthorById(authorId);
 
     const article = this.articleRepository.create({
       title,
@@ -67,21 +63,26 @@ export class ArticleService {
 
     try {
       const savedArticle = await this.articleRepository.save(article);
-
-      if (faqs && faqs.length > 0) {
-        const faqEntities = faqs.map((faq) => ({
-          question: faq.question,
-          answer: faq.answer,
-          article: savedArticle,
-        }));
-
-        await this.faqRepository.save(faqEntities);
-      }
-
+      await this.saveFAQs(savedArticle, faqs);
+      await this.saveImages(files, savedArticle);
       return savedArticle;
     } catch (error) {
       this.logger.error('Error saving article', error.stack);
       throw new InternalServerErrorException('Error saving article');
+    }
+  }
+
+  private async saveFAQs(
+    article: Article,
+    faqs: { question: string; answer: string }[],
+  ): Promise<void> {
+    if (faqs && faqs.length > 0) {
+      const faqEntities = faqs.map((faq) => ({
+        question: faq.question,
+        answer: faq.answer,
+        articleId: article.article_id, // Используем articleId для сохранения
+      }));
+      await this.faqRepository.save(faqEntities);
     }
   }
 
