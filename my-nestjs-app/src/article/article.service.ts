@@ -7,9 +7,9 @@ import { ConfigService } from '@nestjs/config';
 import { Article } from './article.entity';
 import { Image } from '../image/image.entity';
 import { User } from '../users/user.entity';
-import { Faq } from '../faq/faq.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FaqRepository } from '../faq/faq.repository';
 
 @Injectable()
 export class ArticleService {
@@ -17,14 +17,13 @@ export class ArticleService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly faqRepository: FaqRepository,
     @InjectRepository(Article)
     private readonly articleRepository: Repository<Article>,
     @InjectRepository(Image)
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Faq) 
-    private readonly faqRepository: Repository<Faq>,
   ) {}
 
   async saveArticleNew(
@@ -35,7 +34,7 @@ export class ArticleService {
     metaDescription: string,
     authorId: number,
     files: Express.Multer.File[],
-    faqs: { question: string; answer: string }[], 
+    faqs: { question: string; answer: string }[],
   ): Promise<Article> {
     let author: User;
     try {
@@ -48,14 +47,14 @@ export class ArticleService {
       this.logger.error('Error finding author', error.stack);
       throw new InternalServerErrorException('Error finding author');
     }
-  
+
     if (!author) {
       this.logger.error(`Author with ID ${authorId} not found`);
       throw new InternalServerErrorException(
         `Author with ID ${authorId} not found`,
       );
     }
-  
+
     const article = this.articleRepository.create({
       title,
       keyPoints,
@@ -63,30 +62,28 @@ export class ArticleService {
       content,
       meta_description: metaDescription,
       author,
-      status_id: 1, 
+      status_id: 1,
     });
-    
+
     try {
       const savedArticle = await this.articleRepository.save(article);
-    
+
       if (faqs && faqs.length > 0) {
-        const faqEntities = faqs.map(faq => ({
+        const faqEntities = faqs.map((faq) => ({
           question: faq.question,
           answer: faq.answer,
           article: savedArticle,
         }));
-    
+
         await this.faqRepository.save(faqEntities);
       }
-    
+
       return savedArticle;
     } catch (error) {
       this.logger.error('Error saving article', error.stack);
       throw new InternalServerErrorException('Error saving article');
     }
   }
-    
-  
 
   async findAll(authorId?: number): Promise<Article[]> {
     try {
@@ -133,10 +130,11 @@ export class ArticleService {
       return articles;
     } catch (error) {
       this.logger.error('Failed to fetch articles by author', error.stack);
-      throw new InternalServerErrorException('Failed to fetch articles by author');
+      throw new InternalServerErrorException(
+        'Failed to fetch articles by author',
+      );
     }
   }
-  
 
   async countArticlesByAuthorId(authorId: number): Promise<number> {
     try {

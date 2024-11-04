@@ -13,18 +13,18 @@ import { Status } from './status/status.entity';
 import { AuthModule } from './auth/auth.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { FaqModule } from './faq/faq.module';
-
+import { Faq } from './faq/faq.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5432,
+      port: 5433,
       username: 'postgres',
-      password: 'root',
+      password: 'loading1351',
       database: 'postgres',
-      entities: [User, Article, Image, Role, Status],
+      entities: [User, Article, Image, Role, Status, Faq],
       synchronize: true,
     }),
     TypeOrmModule.forFeature([User, Article, Image, Role, Status]),
@@ -36,9 +36,6 @@ import { FaqModule } from './faq/faq.module';
   ],
   exports: [PrismaService],
   controllers: [AppController],
-  providers: [
-    AppService,
-    PrismaService,
-  ],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}

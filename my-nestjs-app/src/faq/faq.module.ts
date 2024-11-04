@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { FaqRepository } from './faq.repository'; // Импортируйте ваш репозиторий
+import { FaqRepository } from './faq.repository';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
+  imports: [PrismaModule],
   providers: [FaqRepository],
-  exports: [FaqRepository], // Экспортируйте FaqRepository, чтобы другие модули могли его использовать
+  exports: [FaqRepository],
 })
 export class FaqModule {}
