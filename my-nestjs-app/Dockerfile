@@ -1,5 +1,5 @@
 # Используем официальный Node.js образ
-FROM node:16
+FROM node:20
 
 # Установка рабочей директории
 WORKDIR /my-nestjs-app
