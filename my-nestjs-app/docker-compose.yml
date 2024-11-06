@@ -13,6 +13,8 @@ services:
       - db
     volumes:
       - .:/my-nestjs-app
+    networks:
+      - mysupernetwork
 
   db:
     image: postgres:latest
@@ -25,17 +27,12 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    ports:
-      - '8080:80'
-    environment:
-      PGADMIN_DEFAULT_EMAIL: loading@load.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    depends_on:
-      - db
+    networks:
+      - mysupernetwork
 
 volumes:
   pgdata:
+
+networks:
+  mysupernetwork:
+    driver: bridge
