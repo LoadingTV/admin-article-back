@@ -24,18 +24,25 @@ export class UsersService {
   ) {}
 
   async createUser(createUserData: CreateUserDto): Promise<User> {
-    // Загружаем роль с id 1 (или нужное значение) из базы данных
-    const defaultRole = await this.roleRepository.findOne({ where: { id: 1 } });
-    
-    if (!defaultRole) {
-      throw new InternalServerErrorException('Default role not found');
+    let role;
+    if (createUserData.roleId) {
+        role = await this.roleRepository.findOne({ where: { id: createUserData.roleId } });
+        
+        if (!role) {
+            throw new InternalServerErrorException('Specified role not found');
+        }
+    } else {
+        role = await this.roleRepository.findOne({ where: { id: 1 } });
+        
+        if (!role) {
+            throw new InternalServerErrorException('Default role not found');
+        }
     }
   
-    // Создаем пользователя с установленной ролью
     const user = this.userRepository.create({
       ...createUserData,
-      role: defaultRole,
-    });
+      role: role,  
+  });
   
     this.logger.log(`Creating user with role: ${user.role.name}`);
   
