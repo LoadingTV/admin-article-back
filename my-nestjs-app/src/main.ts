@@ -8,6 +8,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
+      'http://admin-article-front-9mlc.vercel.app',
       'https://admin-article-front-9mlc.vercel.app',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -15,6 +16,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(3001);
+  await app.listen(3001, '0.0.0.0');
 }
 bootstrap();

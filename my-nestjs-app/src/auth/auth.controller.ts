@@ -24,7 +24,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto) {
-    this.logger.log('Registration attempt', { email: registerDto.email }); // Логируем попытку регистрации
+    this.logger.log('Registration attempt', { email: registerDto.email });
 
     try {
       const user = await this.authService.register(registerDto);
@@ -42,7 +42,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
-    this.logger.log('Login attempt', { email: loginDto.email }); // Логируем попытку входа
+    this.logger.log('Login attempt', { email: loginDto.email });
 
     try {
       const user = await this.authService.validateUser(
