@@ -26,9 +26,15 @@ export class ArticleService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  private async findAuthorById(authorId: number): Promise<User> {
+  private async findAuthorById(authorId: string): Promise<User> {
+    const numericAuthorId = parseInt(authorId, 10);
+    if (isNaN(numericAuthorId)) {
+      this.logger.error(`Invalid author ID: ${authorId}`);
+      throw new InternalServerErrorException(`Invalid author ID: ${authorId}`);
+    }
+
     const author = await this.userRepository.findOne({
-      where: { user_id: authorId },
+      where: { user_id: numericAuthorId },
     });
     if (!author) {
       this.logger.error(`Author with ID ${authorId} not found`);

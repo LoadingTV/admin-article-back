@@ -35,7 +35,8 @@ export class UsersService {
         role = await this.roleRepository.findOne({ where: { id: 1 } });
         
         if (!role) {
-            throw new InternalServerErrorException('Default role not found');
+           role = this.roleRepository.create({name: 'default_role'})
+           await this.roleRepository.save(role);
         }
     }
   
