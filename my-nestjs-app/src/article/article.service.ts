@@ -55,7 +55,7 @@ export class ArticleService {
     files: Express.Multer.File[],
     faqs: { question: string; answer: string }[],
   ): Promise<Article> {
-    const author = await this.findAuthorById(authorId);
+    const author = await this.findAuthorById(authorId.toString());
 
     const article = this.articleRepository.create({
       title,
