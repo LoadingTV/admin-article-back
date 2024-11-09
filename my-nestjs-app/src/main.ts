@@ -10,6 +10,8 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://admin-article-front-9mlc.vercel.app',
       'https://admin-article-front-9mlc.vercel.app',
+      'https://loading.wtf',
+      'https://usasprayme.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
