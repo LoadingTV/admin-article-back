@@ -90,7 +90,7 @@ export class ArticleService {
       const faqEntities = faqs.map((faq) => ({
         question: faq.question,
         answer: faq.answer,
-        articleId: article.article_id, // Используем articleId для сохранения
+        articleId: article.article_id,
       }));
       await this.faqRepository.save(faqEntities);
     }

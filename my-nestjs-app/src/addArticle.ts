@@ -52,7 +52,6 @@ async function createArticle() {
       meta_description: 'описание',
       content: 'Содержимое статьи',
       author,
-      // images: [] // Добавьте логику для работы с изображениями, если необходимо
     });
 
     const savedArticle = await articleRepository.save(newArticle);
@@ -61,11 +60,10 @@ async function createArticle() {
     console.error('Ошибка:', error);
   } finally {
     if (connection) {
-      await connection.close(); // Закрываем соединение
+      await connection.close();
     }
   }
 }
 
-// Вызываем функции
 createUser('Арина', 'arina@example.com', 'your_password');
 createArticle();

@@ -35,33 +35,30 @@ export class ArticleCreationController {
   )
   async createArticle(
     @Body() articleData: CreateArticleDto,
-    @UploadedFiles() files?: Express.Multer.File[], // Сделаем files опциональным
+    @UploadedFiles() files?: Express.Multer.File[],
   ): Promise<ArticleResponse> {
     try {
-      // Логирование начала создания статьи
       this.logger.log({
         event: 'article_creation_started',
         title: articleData.title,
         slug: articleData.slug,
         content: articleData.content,
         faqs: articleData.faqs,
-        filesCount: files ? files.length : 0, // Проверка на наличие files
-        uploadedFiles: files ? files.map((file) => file.originalname) : [], // Логируем имена файлов, если они есть
+        filesCount: files ? files.length : 0,
+        uploadedFiles: files ? files.map((file) => file.originalname) : [],
       });
 
-      // Передаем authorId и файлы отдельно
       const savedArticle = await this.articleService.saveArticleNew(
         articleData.title,
         articleData.keyPoints,
         articleData.slug,
         articleData.content,
         articleData.metaDescription || 'metaDescription',
-        articleData.authorId, // Передаем authorId как число
-        files || [], // Массив файлов
-        articleData.faqs || [], // Массив вопросов и ответов
+        articleData.authorId,
+        files || [],
+        articleData.faqs || [],
       );
 
-      // Логирование успешного завершения создания статьи
       this.logger.log({
         event: 'article_creation_completed',
         title: articleData.title,
@@ -78,7 +75,6 @@ export class ArticleCreationController {
         article: savedArticle,
       };
     } catch (error) {
-      // Логирование ошибки при создании статьи
       this.logger.error({
         event: 'article_creation_failed',
         error: error.message,
