@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { Article } from './article.entity';
+import { BadRequestException } from '@nestjs/common';
 
 @Controller('/articles')
 export class ArticleController {
@@ -33,11 +34,18 @@ export class ArticleController {
 
   @Get()
   async getAllArticles(
-    @Query('authorId', ParseIntPipe) authorId?: number,
+    @Query('authorId') authorId?: string, // Сделаем authorId строкой
   ): Promise<Article[]> {
     this.logger.log({ event: 'fetch_all_articles' });
     try {
-      return await this.articleService.findAll(authorId);
+      if (authorId) {
+        const parsedAuthorId = parseInt(authorId, 10);
+        if (isNaN(parsedAuthorId)) {
+          throw new BadRequestException('Invalid authorId');
+        }
+        return await this.articleService.findAll(parsedAuthorId);
+      }
+      return await this.articleService.findAll(); // Если authorId не передан, получаем все статьи
     } catch (error) {
       this.logger.error('Error fetching all articles', error.stack);
       throw new NotFoundException('Failed to fetch articles');
