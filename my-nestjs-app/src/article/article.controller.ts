@@ -34,7 +34,7 @@ export class ArticleController {
 
   @Get()
   async getAllArticles(
-    @Query('authorId') authorId?: string, // Сделаем authorId строкой
+    @Query('authorId') authorId?: string,
   ): Promise<Article[]> {
     this.logger.log({ event: 'fetch_all_articles' });
     try {
@@ -45,7 +45,7 @@ export class ArticleController {
         }
         return await this.articleService.findAll(parsedAuthorId);
       }
-      return await this.articleService.findAll(); // Если authorId не передан, получаем все статьи
+      return await this.articleService.findAll();
     } catch (error) {
       this.logger.error('Error fetching all articles', error.stack);
       throw new NotFoundException('Failed to fetch articles');
