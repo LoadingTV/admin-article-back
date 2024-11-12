@@ -22,7 +22,7 @@ import { Faq } from './faq/faq.entity';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: '1351',
+      password: 'root',
       database: 'postgres',
       entities: [User, Article, Image, Role, Status, Faq],
       synchronize: true,

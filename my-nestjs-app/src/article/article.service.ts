@@ -72,8 +72,15 @@ export class ArticleService {
     });
 
     try {
+      
+      console.log('Saving article...');
       const savedArticle = await this.articleRepository.save(article);
+      console.log('ОК...');
+
+      console.log('Saving FAQs...');
       await this.saveFAQs(savedArticle, faqs);
+      
+      console.log('ОК...');
       await this.saveImages(files, savedArticle);
       return savedArticle;
     } catch (error) {
@@ -86,11 +93,12 @@ export class ArticleService {
     article: Article,
     faqs: { question: string; answer: string }[],
   ): Promise<void> {
+    console.log('Мы в методе..');
     if (faqs && faqs.length > 0) {
       const faqEntities = faqs.map((faq) => ({
         question: faq.question,
         answer: faq.answer,
-        articleId: article.article_id,
+        article_id: article.article_id,
       }));
       await this.faqRepository.save(faqEntities);
     }

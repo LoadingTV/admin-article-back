@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Article } from '../article/article.entity';
 
-@Entity()
+@Entity('Image')
 export class Image {
   @PrimaryGeneratedColumn()
   image_id: number;

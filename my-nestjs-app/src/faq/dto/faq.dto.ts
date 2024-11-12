@@ -8,5 +8,5 @@ export class CreateFaqDto {
   answer: string;
 
   @IsNotEmpty()
-  articleId: number;
+  article_id: number;
 }

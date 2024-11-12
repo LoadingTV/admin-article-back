@@ -5,15 +5,27 @@ import { CreateFaqDto } from './dto/faq.dto';
 
 @Injectable()
 export class FaqRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(faqData: CreateFaqDto): Promise<FAQ> {
+
+    // Выводим данные, которые получили на вход
+    console.log('Received FAQ data:', faqData)
+
+    console.log('балабалаб', faqData.article_id);
+    console.log('article_id to search for:', faqData.article_id);
+    // Проверяем, существует ли статья с таким article_id
+    const articleExists = await this.prisma.article.findUnique({
+      where: { article_id: faqData.article_id },
+    });
+
+    console.log('сейчас упадем...');
+    if (!articleExists) {
+      throw new Error(`Article with id ${faqData.article_id} does not exist`);
+    }
+    // Если статья существует, создаем FAQ
     return this.prisma.fAQ.create({
-      data: {
-        question: faqData.question,
-        answer: faqData.answer,
-        article_id: faqData.articleId,
-      },
+      data: faqData,
     });
   }
 
@@ -25,7 +37,7 @@ export class FaqRepository {
     faqEntities: {
       question: string;
       answer: string;
-      articleId: number;
+      article_id: number;
     }[],
   ): Promise<FAQ[]> {
     const createdFaqs = await Promise.all(
@@ -33,7 +45,7 @@ export class FaqRepository {
         this.create({
           question: faq.question,
           answer: faq.answer,
-          articleId: faq.articleId,
+          article_id: faq.article_id,
         }),
       ),
     );
