@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsNumber,IsOptional,IsArray } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsArray,
+} from 'class-validator';
 
 export class CreateArticleDto {
   @IsString()
@@ -21,9 +27,9 @@ export class CreateArticleDto {
   @IsNotEmpty()
   metaDescription: string;
 
+  @IsOptional()
   @IsNumber()
-  @IsNotEmpty()
-  authorId: number;
+  authorId?: number;
 
   @IsOptional()
   @IsArray()

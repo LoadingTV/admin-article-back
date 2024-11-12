@@ -26,7 +26,7 @@ async function createUser(name: string, email: string, password: string) {
     console.error('Ошибка:', error);
   } finally {
     if (connection) {
-      await connection.close(); // Закрываем соединение
+      await connection.close();
     }
   }
 }
@@ -38,7 +38,7 @@ async function createArticle() {
     const articleRepository = connection.getRepository(Article);
     const userRepository = connection.getRepository(User);
 
-    const author = await userRepository.findOne({ where: { id: 1 } }); // Убедитесь, что это корректное название поля
+    const author = await userRepository.findOne({ where: { user_id: 1 } });
 
     if (!author) {
       console.error('Автор не найден');

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ArticleController } from './article.controller';
+import { ArticleCreationController } from './articleCreate.controller';
 import { ArticleService } from './article.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -10,6 +11,7 @@ import { UserModule } from '../users/users.module';
 import { FaqRepository } from '../faq/faq.repository';
 import { FaqModule } from '../faq/faq.module';
 import { PrismaModule } from '../../prisma/prisma.module';
+
 @Module({
   imports: [
     PrismaModule,
@@ -30,7 +32,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
     TypeOrmModule.forFeature([Article, Image]),
     UserModule,
   ],
-  controllers: [ArticleController],
+  controllers: [ArticleController, ArticleCreationController],
   providers: [ArticleService, FaqRepository],
 })
 export class ArticleModule {}

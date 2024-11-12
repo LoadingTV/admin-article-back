@@ -19,10 +19,10 @@ import { Faq } from './faq/faq.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'db',
+      host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'loading1351',
+      password: '1351',
       database: 'postgres',
       entities: [User, Article, Image, Role, Status, Faq],
       synchronize: true,
