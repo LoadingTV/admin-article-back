@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { Article } from './article.entity';
 import { Image } from '../image/image.entity';
 import { User } from '../users/user.entity';
+import { Status } from '../Status/Status.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FaqRepository } from '../faq/faq.repository';
@@ -24,6 +25,8 @@ export class ArticleService {
     private readonly imageRepository: Repository<Image>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    // @InjectRepository(Status)
+    // private readonly statusRepository: Repository<Status>, 
   ) {}
 
   private async findAuthorById(authorId: string): Promise<User> {
@@ -60,6 +63,15 @@ export class ArticleService {
     if (authorId) {
       author = await this.findAuthorById(authorId.toString());
     }
+    
+    // let status = await this.statusRepository.findOne({ where: { status_id: 1 } });
+    // if (!status) {
+    //   status = this.statusRepository.create({
+    //     status_id: 1, 
+    //     name: 'Publishing', 
+    //   });
+    //   await this.statusRepository.save(status);
+    // }
 
     const article = this.articleRepository.create({
       title,
@@ -69,6 +81,8 @@ export class ArticleService {
       meta_description: metaDescription,
       author,
       status_id: 1,
+      created_at: new Date(), 
+      updated_at: new Date(),
     });
 
     try {

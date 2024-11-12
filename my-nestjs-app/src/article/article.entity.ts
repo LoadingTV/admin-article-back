@@ -6,6 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Image } from '../image/image.entity';
@@ -40,12 +41,14 @@ export class Article {
   content: string;
 
   @ManyToOne(() => User, (user) => user.articles)
+  @JoinColumn({ name: 'author_id' })
   author: User;
 
   @OneToMany(() => Image, (image) => image.article)
   images: Image[];
 
   @ManyToOne(() => Status)
+  @JoinColumn({ name: 'status_id' })
   status: Status;
 
   @OneToMany(() => Faq, (faq) => faq.article)

@@ -9,6 +9,7 @@ import { Article } from './article.entity';
 import { Image } from '../image/image.entity';
 import { UserModule } from '../users/users.module';
 import { FaqRepository } from '../faq/faq.repository';
+// import { statusRepository } from '../status/status.repository';
 import { FaqModule } from '../faq/faq.module';
 import { PrismaModule } from '../../prisma/prisma.module';
 
