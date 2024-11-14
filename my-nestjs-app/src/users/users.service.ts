@@ -4,60 +4,57 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { User } from './user.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from './role.entity'; 
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(
-    private readonly configService: ConfigService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Role)  
-    private roleRepository: Repository<Role>
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(createUserData: CreateUserDto): Promise<User> {
-    let role;
-    if (createUserData.roleId) {
-        role = await this.roleRepository.findOne({ where: { id: createUserData.roleId } });
-        
-        if (!role) {
-            throw new InternalServerErrorException('Specified role not found');
-        }
-    } else {
-        role = await this.roleRepository.findOne({ where: { id: 1 } });
-        
-        if (!role) {
-           role = this.roleRepository.create({name: 'default_role'})
-           await this.roleRepository.save(role);
-        }
-    }
-  
-    const user = this.userRepository.create({
-      ...createUserData,
-      role: role,  
-  });
-  
-    this.logger.log(`Creating user with role: ${user.role.name}`);
-  
+  // Метод создания пользователя
+  async createUser(createUserData: CreateUserDto) {
     try {
-      return await this.userRepository.save(user);
+      let roleId = createUserData.role?.role_id;
+
+      // Если роль не передана, используем роль по умолчанию (например, с role_id = 1)
+      if (!roleId) {
+        roleId = 1; // Вы можете изменить это на ID вашей роли по умолчанию
+        this.logger.log('No role provided, using default role (ID: 1)');
+      }
+
+      // Получаем роль из базы данных
+      const role = await this.prisma.role.findUnique({
+        where: { role_id: roleId },
+      });
+
+      if (!role) {
+        throw new NotFoundException(`Role with ID ${roleId} not found`);
+      }
+
+      // Создаем пользователя с выбранной или дефолтной ролью
+      const user = await this.prisma.user.create({
+        data: {
+          ...createUserData,
+          role: {
+            connect: { role_id: roleId },
+          },
+        },
+      });
+
+      this.logger.log(`Creating user with role: ${role.role_name}`);
+      return user;
     } catch (error) {
       this.logger.error('Failed to create user', error.stack);
       throw new InternalServerErrorException('Failed to create user');
     }
   }
 
-  async getUserById(userId: number): Promise<User | null> {
+  // Получение пользователя по ID
+  async getUserById(userId: number) {
     try {
-      const user = await this.userRepository.findOne({
+      const user = await this.prisma.user.findUnique({
         where: { user_id: userId },
       });
       if (!user) {
@@ -73,9 +70,9 @@ export class UsersService {
   }
 
   // Получение всех пользователей
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers() {
     try {
-      return await this.userRepository.find();
+      return await this.prisma.user.findMany();
     } catch (error) {
       this.logger.error('Failed to fetch users', error.stack);
       throw new InternalServerErrorException('Failed to fetch users');
@@ -83,16 +80,30 @@ export class UsersService {
   }
 
   // Валидация пользователя по email и паролю
-  async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (user && user.password === password) {
-      return user; // Возвращаем пользователя, если пароль совпадает
+  async validateUser(email: string, password: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+      if (user && user.password === password) {
+        return user;
+      }
+      return null;
+    } catch (error) {
+      this.logger.error(`Failed to validate user ${email}`, error.stack);
+      throw new InternalServerErrorException('Failed to validate user');
     }
-    return null; // Возвращаем null, если пользователь не найден или пароль не совпадает
   }
 
   // Получение пользователя по email
-  async findByEmail(email: string): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { email } });
+  async findByEmail(email: string) {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { email },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to find user by email: ${email}`, error.stack);
+      throw new InternalServerErrorException('Failed to find user by email');
+    }
   }
 }

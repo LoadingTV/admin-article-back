@@ -1,10 +1,11 @@
 import {
   IsString,
-  IsNotEmpty,
-  IsNumber,
   IsOptional,
+  IsInt,
   IsArray,
+  IsNotEmpty,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateArticleDto {
   @IsString()
@@ -20,18 +21,26 @@ export class CreateArticleDto {
   slug: string;
 
   @IsString()
-  @IsNotEmpty()
-  content: string;
+  @IsOptional()
+  meta_description?: string;
 
   @IsString()
   @IsNotEmpty()
-  metaDescription: string;
+  content: string;
 
+  @IsInt()
   @IsOptional()
-  @IsNumber()
-  authorId?: number;
+  author_id?: number;
 
+  @IsInt()
   @IsOptional()
+  status_id?: number;
+
   @IsArray()
-  faqs?: { question: string; answer: string }[];
+  @IsOptional()
+  images?: string[];
+
+  @IsArray()
+  @IsOptional()
+  faqs?: string[];
 }

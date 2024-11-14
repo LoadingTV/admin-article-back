@@ -1,39 +1,22 @@
 import { Module } from '@nestjs/common';
-import { ArticleController } from './article.controller';
-import { ArticleCreationController } from './articleCreate.controller';
-import { ArticleService } from './article.service';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Article } from './article.entity';
-import { Image } from '../image/image.entity';
-import { UserModule } from '../users/users.module';
-import { FaqRepository } from '../faq/faq.repository';
-// import { statusRepository } from '../status/status.repository';
-import { FaqModule } from '../faq/faq.module';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { ArticleController } from './controllers/article.controller';
+import { ArticleService } from './services/article.service';
+import { StatusService } from '../status/status.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { UsersService } from '../users/users.service';
+
+import { ArticleCreateService } from './services/article-create.services';
 
 @Module({
   imports: [
-    PrismaModule,
-    FaqModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => [
-        {
-          ttl: parseInt(config.get('THROTTLE_TTL'), 10) || 60,
-          limit: parseInt(config.get('THROTTLE_LIMIT'), 10) || 10,
-        },
-      ],
-    }),
-    TypeOrmModule.forFeature([Article, Image]),
-    UserModule,
+    // Если UsersService находится в модуле UsersModule, импортируйте его сюда:
+    // UsersModule,  // Например, если UsersService находится в модуле UsersModule
   ],
-  controllers: [ArticleController, ArticleCreationController],
-  providers: [ArticleService, FaqRepository],
+  providers: [
+    ArticleCreateService,
+    StatusService,
+    UsersService, // Убедитесь, что UsersService добавлен в providers
+    PrismaService,
+  ],
 })
 export class ArticleModule {}

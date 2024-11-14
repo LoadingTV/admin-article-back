@@ -49,11 +49,9 @@ model User {
   surname    String
   email      String          @unique
   password   String
-  articles   Article[]       @relation
-
-  role_id    Int            @map("role_id")
-  role       Role           @relation("RoleUsers", fields: [role_id], references: [role_id])
-
+  role_id    Int      @map("role_id")  
+  role       Role     @relation("RoleUsers", fields: [role_id], references: [role_id])   
+  articles   Article[]  
 }
 
 model Role {

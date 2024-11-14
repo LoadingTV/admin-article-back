@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString,IsOptional,IsInt } from 'class-validator';
-import { Role } from '../../users/role.entity'; 
+// register.dto.ts
+import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -19,6 +19,8 @@ export class CreateUserDto {
   password: string;
 
   @IsOptional()
-  @IsInt()
-  roleId?: number;
+  role?: {
+    role_id: number;
+    role_name: string;
+  };
 }

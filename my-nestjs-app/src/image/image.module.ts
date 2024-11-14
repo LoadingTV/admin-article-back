@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Image } from './image.entity';
-
+import { PrismaService } from '../../prisma/prisma.service';
 @Module({
-  imports: [TypeOrmModule.forFeature([Image])],
+  providers: [PrismaService],
 })
 export class ImageModule {}

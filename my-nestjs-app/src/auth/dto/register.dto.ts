@@ -1,5 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString,IsOptional } from 'class-validator';
-import { Role } from '../../users/role.entity'; 
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsInt,
+} from 'class-validator';
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -19,5 +24,9 @@ export class RegisterDto {
   password: string;
 
   @IsOptional()
-  role?: Role;
+  @IsInt()
+  role?: {
+    role_id: number;
+    role_name: string;
+  };
 }

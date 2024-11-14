@@ -6,23 +6,46 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { User } from '../users/user.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { User } from '@prisma/client'; // Импортируем тип User из Prisma
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private readonly usersService: UsersService,
+    private readonly prisma: PrismaService, // Используем PrismaService
     private readonly jwtService: JwtService,
   ) {}
 
+  // Регистрация пользователя
   async register(createUserDto: CreateUserDto): Promise<User> {
     try {
       this.logger.log(`Registering user with email: ${createUserDto.email}`);
-      return await this.usersService.createUser(createUserDto);
+      // Проверяем, есть ли пользователь с таким email
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: createUserDto.email },
+      });
+
+      if (existingUser) {
+        throw new BadRequestException('User with this email already exists');
+      }
+      // Извлекаем role_id и role_name из объекта role
+      const { role_id, role_name } = createUserDto.role || {};
+      // Создаем нового пользователя
+      const user = await this.prisma.user.create({
+        data: {
+          name: createUserDto.name,
+          surname: createUserDto.surname,
+          email: createUserDto.email,
+          password: createUserDto.password,
+          role_id: role_id || 1,
+        },
+      });
+
+      return user;
     } catch (error) {
       this.logger.error(`Failed to register user: ${error.message}`);
       throw new InternalServerErrorException(
@@ -31,14 +54,19 @@ export class AuthService {
     }
   }
 
+  // Валидация пользователя по email и паролю
   async validateUser(email: string, password: string): Promise<User | null> {
     try {
       this.logger.log(`Validating user with email: ${email}`);
-      const user = await this.usersService.validateUser(email, password);
-      if (!user) {
-        this.logger.warn(`User not found for email: ${email}`);
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user || user.password !== password) {
+        this.logger.warn(`Invalid credentials for email: ${email}`);
         return null;
       }
+
       return user;
     } catch (error) {
       this.logger.error(`Error validating user: ${error.message}`);
@@ -48,6 +76,7 @@ export class AuthService {
     }
   }
 
+  // Логин и генерация токена
   async login(user: User) {
     try {
       this.logger.log(`Logging in user with email: ${user.email}`);
@@ -63,10 +92,13 @@ export class AuthService {
     }
   }
 
+  // Получение профиля пользователя по ID
   async getProfile(userId: number): Promise<User> {
     try {
       this.logger.log(`Fetching profile for user ID: ${userId}`);
-      const user = await this.usersService.getUserById(userId);
+      const user = await this.prisma.user.findUnique({
+        where: { user_id: userId },
+      });
       if (!user) {
         this.logger.warn(`User not found for ID: ${userId}`);
         throw new InternalServerErrorException('User not found');
