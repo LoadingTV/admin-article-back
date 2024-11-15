@@ -64,30 +64,27 @@ export class ArticleCreateService {
       status = await this.statusService.getDraftStatus(); // Используем Prisma для получения статуса Draft
     }
 
-    // Преобразуем массив строк в структуру, соответствующую ImageCreateNestedManyWithoutArticleInput
     let imageData = [];
     if (images && images.length > 0) {
       imageData = images.map((imageUrl) => ({
-        image_url: imageUrl, // Используйте соответствующее поле в вашей модели изображения
+        image_url: imageUrl,
       }));
     }
 
-    // Преобразуем массив строк в объекты для FAQ
     let faqData = [];
     if (faqs && faqs.length > 0) {
       faqData = faqs.map((faq) => ({
-        question: faq, // Используйте соответствующие поля для FAQ, если это вопросы/ответы
-        answer: '', // Можно оставить пустым, если только вопрос нужен
+        question: faq,
+        answer: '',
       }));
     }
 
-    // Создаем статью с использованием Prisma
     try {
       const article = await this.prisma.article.create({
         data: {
-          ...articleData, // Это должны быть поля, которые вы передаете для создания статьи
-          keyPoints, // Убедитесь, что передаете keyPoints
-          slug, // Убедитесь, что передаете slug
+          ...articleData,
+          keyPoints,
+          slug,
           meta_description, // Убедитесь, что передаете meta_description
           author: {
             connect: { user_id: author.user_id }, // Связь с автором через Prisma

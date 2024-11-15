@@ -36,11 +36,11 @@ model Status {
 
 model Image {
   image_id    Int             @id @default(autoincrement())
-  url         String   
-  caption     String  
-  alt_text    String  
+  url         String?          
+  caption     String?          
+  alt_text    String?          
   article_id  Int             @map("article_id")
-  article     Article         @relation("ArticleImages", fields: [article_id], references: [article_id]) 
+  article     Article         @relation("ArticleImages", fields: [article_id], references: [article_id])  
 }
 
 model User {

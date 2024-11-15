@@ -1,40 +1,20 @@
 import {
   Controller,
-  Post,
   Get,
-  Body,
   Param,
   Logger,
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ArticleService } from '../services/article.service';
-import { CreateArticleDto } from '../dto/create-article.dto';
-import { ArticleCreateService } from '../services/article-create.services';
 
 @Controller('articles')
 export class ArticleController {
   private readonly logger = new Logger(ArticleController.name);
 
-  constructor(
-    private readonly articleService: ArticleService,
-    private readonly articleCreateService: ArticleCreateService,
-  ) {}
+  constructor(private readonly articleService: ArticleService) {}
 
-  @Post()
-  async createArticle(@Body() createArticleDto: CreateArticleDto) {
-    try {
-      const article =
-        await this.articleCreateService.createArticle(createArticleDto);
-      this.logger.log(`Article created successfully: ${article.title}`);
-      return article;
-    } catch (error) {
-      this.logger.error('Error while creating article', error.stack);
-      throw new InternalServerErrorException('Failed to create article');
-    }
-  }
-
-  // Получение всех статей
+  // Fetch all articles
   @Get()
   async getAllArticles() {
     try {
@@ -45,7 +25,7 @@ export class ArticleController {
     }
   }
 
-  // Получение статьи по автору
+  // Fetch articles by author
   @Get('author/:authorId')
   async getArticlesByAuthor(@Param('authorId') authorId: string) {
     try {
@@ -62,7 +42,7 @@ export class ArticleController {
     }
   }
 
-  // Получение последних 10 статей
+  // Fetch the latest 10 articles
   @Get('latest')
   async getLatestArticles() {
     try {
