@@ -7,21 +7,43 @@ export class AppService implements OnModuleInit {
 
   async onModuleInit() {
     const roles = ['Admin', 'User', 'Manager'];
+    const statuses = [
+      { status_id: 1, name: 'Published' },
+      { status_id: 2, name: 'Drafts' },
+    ];
 
+    // Проверка и создание ролей
     for (const roleName of roles) {
-      // Проверка, существует ли роль в базе данных по имени
       const existingRole = await this.prisma.role.findFirst({
         where: { role_name: roleName },
       });
 
       if (!existingRole) {
-        // Если роли нет, создаем её (не указываем role_id, если это автоинкрементное поле)
         await this.prisma.role.create({
           data: { role_name: roleName },
         });
         console.log(`Role "${roleName}" created`);
       } else {
         console.log(`Role "${roleName}" already exists`);
+      }
+    }
+
+    // Проверка и создание статусов
+    for (const status of statuses) {
+      const existingStatus = await this.prisma.status.findFirst({
+        where: { status_id: status.status_id },
+      });
+
+      if (!existingStatus) {
+        await this.prisma.status.create({
+          data: {
+            status_id: status.status_id,
+            name: status.name,
+          },
+        });
+        console.log(`Status "${status.name}" created`);
+      } else {
+        console.log(`Status "${status.name}" already exists`);
       }
     }
   }
