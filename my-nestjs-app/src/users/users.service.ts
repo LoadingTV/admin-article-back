@@ -20,7 +20,7 @@ export class UsersService {
 
       // Если роль не передана, используем роль по умолчанию (например, с role_id = 1)
       if (!roleId) {
-        roleId = 1; // Вы можете изменить это на ID вашей роли по умолчанию
+        roleId = 2; // Вы можете изменить это на ID вашей роли по умолчанию
         this.logger.log('No role provided, using default role (ID: 1)');
       }
 

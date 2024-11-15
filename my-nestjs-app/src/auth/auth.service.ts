@@ -24,7 +24,6 @@ export class AuthService {
   async register(createUserDto: CreateUserDto): Promise<User> {
     try {
       this.logger.log(`Registering user with email: ${createUserDto.email}`);
-      // Проверяем, есть ли пользователь с таким email
       const existingUser = await this.prisma.user.findUnique({
         where: { email: createUserDto.email },
       });
@@ -32,9 +31,8 @@ export class AuthService {
       if (existingUser) {
         throw new BadRequestException('User with this email already exists');
       }
-      // Извлекаем role_id и role_name из объекта role
+
       const { role_id, role_name } = createUserDto.role || {};
-      // Создаем нового пользователя
       const user = await this.prisma.user.create({
         data: {
           name: createUserDto.name,
@@ -47,6 +45,9 @@ export class AuthService {
 
       return user;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(`Failed to register user: ${error.message}`);
       throw new InternalServerErrorException(
         'Could not register user. Please try again later.',

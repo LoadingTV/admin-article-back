@@ -74,8 +74,8 @@ export class ArticleCreateService {
     let faqData = [];
     if (faqs && faqs.length > 0) {
       faqData = faqs.map((faq) => ({
-        question: faq,
-        answer: '',
+        question: faq.question,
+        answer: faq.answer,
       }));
     }
 

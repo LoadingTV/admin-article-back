@@ -4,8 +4,19 @@ import {
   IsInt,
   IsArray,
   IsNotEmpty,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
+class FaqDto {
+  @IsString()
+  @IsNotEmpty()
+  question: string;
+
+  @IsString()
+  @IsOptional()
+  answer?: string;
+}
 
 export class CreateArticleDto {
   @IsString()
@@ -41,6 +52,8 @@ export class CreateArticleDto {
   images?: string[];
 
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FaqDto)
   @IsOptional()
-  faqs?: string[];
+  faqs?: FaqDto[];
 }
