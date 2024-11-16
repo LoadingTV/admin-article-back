@@ -10,6 +10,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { FaqModule } from './faq/faq.module';
 import { ArticleCreateController } from 'article/controllers/article-create.controller';
 import { ArticleCreateService } from 'article/services/article-create.services';
+import { ArticleController } from 'article/controllers/article.controller';
+import { ArticleService } from 'article/services/article.service';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { ArticleCreateService } from 'article/services/article-create.services';
     FaqModule,
   ],
   exports: [PrismaService],
-  controllers: [ArticleCreateController, AppController],
-  providers: [AppService, ArticleCreateService, PrismaService],
+  controllers: [ArticleCreateController, AppController,ArticleController],
+  providers: [AppService, ArticleCreateService, PrismaService,ArticleService],
 })
 export class AppModule {}

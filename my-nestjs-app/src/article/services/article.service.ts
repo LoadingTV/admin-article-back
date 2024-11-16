@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateArticleDto } from '../dto/create-article.dto';
-import { Article } from '@prisma/client'; // Импортируем тип Article из Prisma
+import { Article } from '@prisma/client'; 
+import { truncateKeyPoints } from '../utils/truncate-key-points.util'; 
 
 @Injectable()
 export class ArticleService {
@@ -26,7 +27,12 @@ export class ArticleService {
         this.logger.log(`Fetched ${articles.length} articles`);
       }
 
-      return articles;
+      const truncatedArticles = articles.map((article) => ({ //тут происходит обрезание :)
+        ...article,
+        keyPoints: truncateKeyPoints(article.keyPoints, 250),
+      }));
+
+      return truncatedArticles;
     } catch (error) {
       this.logger.error('Error while fetching articles', error.stack);
       throw new InternalServerErrorException('Failed to fetch articles');
@@ -82,54 +88,6 @@ export class ArticleService {
     } catch (error) {
       this.logger.error('Error while fetching latest articles', error.stack);
       throw new InternalServerErrorException('Failed to fetch latest articles');
-    }
-  }
-
-  // Создание новой статьи
-  async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
-    try {
-      this.logger.log(
-        `Creating new article with title: ${createArticleDto.title}`,
-      );
-
-      // Проверяем, существует ли статья с таким же заголовком
-      const existingArticle = await this.prisma.article.findFirst({
-        where: { title: createArticleDto.title },
-      });
-
-      if (existingArticle) {
-        this.logger.warn(
-          `Article with title "${createArticleDto.title}" already exists`,
-        );
-        throw new InternalServerErrorException(
-          'Article with this title already exists',
-        );
-      }
-
-      // Создаем новую статью
-      const article = await this.prisma.article.create({
-        data: {
-          title: createArticleDto.title,
-          content: createArticleDto.content,
-          keyPoints: createArticleDto.keyPoints, // Добавьте keyPoints
-          slug: createArticleDto.slug, // Добавьте slug
-          meta_description: createArticleDto.meta_description, // Добавьте meta_description
-          author: {
-            connect: { user_id: createArticleDto.author_id },
-          },
-          status: {
-            connect: { status_id: createArticleDto.status_id || 1 },
-          },
-        },
-      });
-
-      this.logger.log(
-        `Article with ID ${article.article_id} created successfully`,
-      );
-      return article;
-    } catch (error) {
-      this.logger.error('Error while creating article', error.stack);
-      throw new InternalServerErrorException('Failed to create article');
     }
   }
 

@@ -47,9 +47,9 @@ export class CreateArticleDto {
   @IsOptional()
   status_id?: number;
 
-  @IsArray()
+  @IsString()
   @IsOptional()
-  images?: string[];
+  image?: string;
 
   @IsArray()
   @ValidateNested({ each: true })

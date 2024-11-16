@@ -29,8 +29,8 @@ model Article {
 }
 
 model Status {
-  status_id  Int       @id @default(autoincrement())
-  name       String    @unique
+  status_id  Int               @id @default(autoincrement())
+  name       String            @unique
   articles   Article[]
 }
 
@@ -39,8 +39,8 @@ model Image {
   url         String?          
   caption     String?          
   alt_text    String?          
-  article_id  Int             @map("article_id")
-  article     Article         @relation("ArticleImages", fields: [article_id], references: [article_id])  
+  article_id  Int             @unique
+  article     Article         @relation(fields: [article_id], references: [article_id])  
 }
 
 model User {
@@ -49,8 +49,8 @@ model User {
   surname    String
   email      String          @unique
   password   String
-  role_id    Int      @map("role_id")  
-  role       Role     @relation("RoleUsers", fields: [role_id], references: [role_id])   
+  role_id    Int             @map("role_id")  
+  role       Role            @relation("RoleUsers", fields: [role_id], references: [role_id])   
   articles   Article[]  
 }
 

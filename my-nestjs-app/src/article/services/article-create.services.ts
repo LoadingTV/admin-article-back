@@ -26,15 +26,15 @@ export class ArticleCreateService {
       meta_description,
       keyPoints,
       slug,
-      images,
+      image,
       faqs,
       ...articleData
     } = createArticleDto;
 
     // Проверка на обязательные поля
-    if (!meta_description || !keyPoints || !slug) {
+    if (!meta_description || !keyPoints || !slug || !image) {
       throw new InternalServerErrorException(
-        'Missing required fields: meta_description, keyPoints, or slug',
+        'Missing required fields: meta_description, keyPoints, slug or image',
       );
     }
 
@@ -64,13 +64,6 @@ export class ArticleCreateService {
       status = await this.statusService.getDraftStatus(); // Используем Prisma для получения статуса Draft
     }
 
-    let imageData = [];
-    if (images && images.length > 0) {
-      imageData = images.map((imageUrl) => ({
-        image_url: imageUrl,
-      }));
-    }
-
     let faqData = [];
     if (faqs && faqs.length > 0) {
       faqData = faqs.map((faq) => ({
@@ -92,9 +85,13 @@ export class ArticleCreateService {
           status: {
             connect: { status_id: status.status_id }, // Связь со статусом через Prisma
           },
-          images: {
-            create: imageData, // Добавляем изображения в статью
-          },
+          image: image // Устанавливаем связь с одним изображением
+          ? {
+              create: {
+                url: image,
+              },
+            }
+          : undefined,
           faqs: {
             create: faqData, // Добавляем вопросы/ответы в статью
           },
