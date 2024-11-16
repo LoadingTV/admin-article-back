@@ -68,13 +68,16 @@ export class ArticleService {
   }
 
   // Получение последних 10 статей
-  async getLatestArticles(): Promise<Article[]> {
+  async getLatestArticles(): Promise<Article[]> { // + картинка ключи
     try {
       this.logger.log('Fetching latest 10 articles');
       const articles = await this.prisma.article.findMany({
         take: 10,
         orderBy: {
           created_at: 'desc',
+        },
+        include: {
+          image: true, 
         },
       });
 
@@ -84,7 +87,12 @@ export class ArticleService {
         this.logger.log(`Fetched ${articles.length} latest articles`);
       }
 
-      return articles;
+      const truncatedArticles = articles.map((article) => ({ //тут происходит обрезание :)
+        ...article,
+        keyPoints: truncateKeyPoints(article.keyPoints, 250),
+      }));
+
+      return truncatedArticles;
     } catch (error) {
       this.logger.error('Error while fetching latest articles', error.stack);
       throw new InternalServerErrorException('Failed to fetch latest articles');
@@ -92,7 +100,7 @@ export class ArticleService {
   }
 
   // Получение статьи по ID
-  async getArticleById(articleId: number): Promise<Article> {
+  async getArticleById(articleId: number): Promise<Article> { //картинку
     try {
       this.logger.log(`Fetching article with ID: ${articleId}`);
       const article = await this.prisma.article.findUnique({
