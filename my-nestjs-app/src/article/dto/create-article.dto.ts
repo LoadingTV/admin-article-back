@@ -20,15 +20,15 @@ class FaqDto {
 
 export class CreateArticleDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   title: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   keyPoints: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   slug: string;
 
   @IsString()
@@ -36,7 +36,7 @@ export class CreateArticleDto {
   meta_description?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   content: string;
 
   @IsInt()

@@ -31,11 +31,25 @@ export class ArticleCreateService {
       ...articleData
     } = createArticleDto;
 
-    // Проверка на обязательные поля
-    if (!meta_description || !keyPoints || !slug || !image) {
-      throw new InternalServerErrorException(
-        'Missing required fields: meta_description, keyPoints, slug or image',
-      );
+    let status;
+    if (status_id) {
+      status = await this.statusService.findStatusById(status_id);
+      if (!status) {
+        throw new InternalServerErrorException(
+          `Status with ID ${status_id} not found`,
+        );
+      }
+    } else {
+      status = await this.statusService.getDraftStatus();
+    }
+
+    // Проверка на обязательные поля, если статус не черновик
+    if (status.name !== 'Draft') {
+      if (!articleData.title || !keyPoints || !slug || !articleData.content) {
+        throw new InternalServerErrorException(
+          'Required fields are missing: title, keyPoints, slug, or content',
+        );
+      }
     }
 
     // Если author_id не передан, генерируем ошибку
@@ -49,19 +63,6 @@ export class ArticleCreateService {
       }
     } else {
       throw new InternalServerErrorException('Author is required');
-    }
-
-    // Если status_id не передан, присваиваем статус Draft
-    let status;
-    if (status_id) {
-      status = await this.statusService.findStatusById(status_id); // Используем Prisma для поиска статуса
-      if (!status) {
-        throw new InternalServerErrorException(
-          `Status with ID ${status_id} not found`,
-        );
-      }
-    } else {
-      status = await this.statusService.getDraftStatus(); // Используем Prisma для получения статуса Draft
     }
 
     let faqData = [];

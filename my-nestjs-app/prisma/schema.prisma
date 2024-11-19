@@ -13,16 +13,16 @@ datasource db {
 
 model Article {
   article_id        Int       @id @default(autoincrement())
-  title             String   
-  keyPoints         String   
-  slug              String     
+  title             String?   
+  keyPoints         String?   
+  slug              String?     
   created_at        DateTime  @default(now()) 
   updated_at        DateTime  @updatedAt
   meta_description  String   
   author_id         Int?      @map("author_id")
   author            User?     @relation(fields: [author_id], references: [user_id]) 
   image             Image?    @relation("ArticleImage") 
-  content           String
+  content           String?
   status_id         Int       @map("status_id")
   status            Status    @relation(fields: [status_id], references: [status_id])
   faqs              FAQ[]     @relation("ArticleFAQs") 
