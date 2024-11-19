@@ -21,6 +21,7 @@ export class ArticleCreateService {
   // Метод для создания статьи
   async createArticle(createArticleDto: CreateArticleDto) {
     const {
+      article_id,
       author_id,
       status_id,
       meta_description,
@@ -74,38 +75,61 @@ export class ArticleCreateService {
     }
 
     try {
-      const article = await this.prisma.article.create({
-        data: {
+      const article = await this.prisma.article.upsert({
+        where: {
+          article_id: article_id || -1, // Если article_id не передан, создается новая статья
+        },
+        update: {
           ...articleData,
           keyPoints,
           slug,
-          meta_description, // Убедитесь, что передаете meta_description
+          meta_description,
           author: {
-            connect: { user_id: author.user_id }, // Связь с автором через Prisma
+            connect: { user_id: author.user_id },
           },
           status: {
-            connect: { status_id: status.status_id }, // Связь со статусом через Prisma
+            connect: { status_id: status.status_id },
           },
-          image: image // Устанавливаем связь с одним изображением
-          ? {
-              create: {
-                url: image,
-              },
-            }
-          : undefined,
+          image: image
+            ? {
+                create: {
+                  url: image,
+                },
+              }
+            : undefined,
           faqs: {
-            create: faqData, // Добавляем вопросы/ответы в статью
+            create: faqData,
+          },
+        },
+        create: {
+          ...articleData,
+          keyPoints,
+          slug,
+          meta_description,
+          author: {
+            connect: { user_id: author.user_id },
+          },
+          status: {
+            connect: { status_id: status.status_id },
+          },
+          image: image
+            ? {
+                create: {
+                  url: image,
+                },
+              }
+            : undefined,
+          faqs: {
+            create: faqData,
           },
         },
       });
 
-      this.logger.log(
-        `Article created successfully with ID: ${article.article_id}`,
-      );
+      this.logger.log(`Article created or updated successfully with ID: ${article.article_id}`);
       return article;
     } catch (error) {
-      this.logger.error('Error while creating article', error.stack);
-      throw new InternalServerErrorException('Failed to create article');
+      this.logger.error('Error while creating or updating article', error.stack);
+      throw new InternalServerErrorException('Failed to create or update article');
     }
   }
 }

@@ -19,6 +19,10 @@ class FaqDto {
 }
 
 export class CreateArticleDto {
+  @IsInt()
+  @IsOptional()
+  article_id?: number;
+  
   @IsString()
   @IsOptional()
   title: string;

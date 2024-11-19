@@ -14,7 +14,7 @@ export class ArticleCreateController {
 
   constructor(private readonly articleCreateService: ArticleCreateService) {}
 
-  @Post()
+  @Post('create')
   async createArticle(@Body() createArticleDto: CreateArticleDto) {
     try {
       const article =
@@ -24,6 +24,18 @@ export class ArticleCreateController {
     } catch (error) {
       this.logger.error('Error while creating article', error.stack);
       throw new InternalServerErrorException('Failed to create article');
+    }
+  }
+
+  @Post('autosave')
+  async autoSaveArticle(@Body() createArticleDto: CreateArticleDto) {
+    try {
+      const article = await this.articleCreateService.createArticle(createArticleDto);
+      this.logger.log(`Article auto-saved successfully: ${article.title}`);
+      return article;
+    } catch (error) {
+      this.logger.error('Error while autosaving article', error.stack);
+      throw new InternalServerErrorException('Failed to autosave article');
     }
   }
 }
