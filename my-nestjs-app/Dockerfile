@@ -1,6 +1,9 @@
 # Используем официальный Node.js образ
 FROM node:20
 
+# Устанавливаем PostgreSQL-клиент  
+RUN apt-get update && apt-get install -y postgresql-client
+
 # Установка рабочей директории
 WORKDIR /my-nestjs-app
 
@@ -10,14 +13,14 @@ COPY package*.json ./
 # Установка зависимостей
 RUN npm install
 
-# Копируем остальные файлы проекта
+# Копируем файлы проекта
 COPY . .
 
 # Компиляция TypeScript в JavaScript
 RUN npm run build
 
-# Экспонируем порт, на котором будет работать приложение
+# Экспонируем порт
 EXPOSE 3001
 
-# Команда для запуска приложения
+# Запуск приложения
 CMD ["node", "dist/src/main.js"]

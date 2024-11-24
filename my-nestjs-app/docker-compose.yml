@@ -3,19 +3,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: nestjs-app
     ports:
       - '3001:3001'
     environment:
       DATABASE_URL: postgresql://postgres:loading1351@db:5432/postgres
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - .:/my-nestjs-app
     networks:
       - mysupernetwork
 
   db:
-    image: postgres:latest
+    image: postgres:16
+    container_name: postgres-db
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -25,12 +28,18 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres', '-d', 'postgres']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
     networks:
       - mysupernetwork
-
-volumes:
-  pgdata:
 
 networks:
   mysupernetwork:
     driver: bridge
+
+volumes:
+  pgdata:
