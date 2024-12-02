@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build:
@@ -7,39 +9,9 @@ services:
     ports:
       - '3001:3001'
     environment:
-      DATABASE_URL: postgresql://postgres:loading1351@db:5432/postgres
-    depends_on:
-      db:
-        condition: service_healthy
+      DATABASE_URL: postgresql://postgres:loading1351@database-1.cn642oqegtt1.us-east-2.rds.amazonaws.com:5432/postgres
     volumes:
       - .:/my-nestjs-app
-    networks:
-      - mysupernetwork
 
-  db:
-    image: postgres:16
-    container_name: postgres-db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: loading1351
-      POSTGRES_DB: postgres
-    ports:
-      - '5432:5432'
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'postgres', '-d', 'postgres']
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 5s
-    networks:
-      - mysupernetwork
-
-networks:
-  mysupernetwork:
-    driver: bridge
-
-volumes:
-  pgdata:
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start:dev"

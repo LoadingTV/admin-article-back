@@ -14,6 +14,7 @@ async function bootstrap() {
       'https://admin-article-front-9mlc.vercel.app',
       'https://loading.wtf',
       'https://usasprayme.com',
+      'database-1.cn642oqegtt1.us-east-2.rds.amazonaws.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

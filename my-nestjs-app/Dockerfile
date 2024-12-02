@@ -1,9 +1,7 @@
 # Используем официальный Node.js образ
 FROM node:20
 
-# Устанавливаем PostgreSQL-клиент  
-RUN apt-get update && apt-get install -y postgresql-client
-
+ 
 # Установка рабочей директории
 WORKDIR /my-nestjs-app
 
